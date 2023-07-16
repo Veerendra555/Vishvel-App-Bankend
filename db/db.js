@@ -3,12 +3,13 @@ const mongoose = require("mongoose");
 class Mongoose {
   constructor() {
     try {
-      mongoose.connect("mongodb://localhost:27017/vishvel", {
+      mongoose.connect("mongodb+srv://vishvel:QzrZgPpCBKEIBoJU@cluster0.uq44rzt.mongodb.net/vishvel", {
         useNewUrlParser: true,
         useCreateIndex: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
       });
+      console.log("DB Connection Successfully..")
       return mongoose;
     } catch (err) {
       console.log("Mongo Error: \n", err);
