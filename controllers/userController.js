@@ -447,6 +447,7 @@ class UserController {
                 !req.body.email ||
                 !req.body.occupation ||
                 !req.body.company ||
+                !req.body.about_company || 
                 // !req.body.businesslogo ||
                 !req.body.mob_no
             ) {

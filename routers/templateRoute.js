@@ -108,6 +108,8 @@ router.get('/', checkAuth, getTemplate);
  *                  type: string
  *              template:
  *                  type: string
+ *              template_type:
+ *                  type: string
  *    responses:
  *      '200':
  *        description: A successful response
