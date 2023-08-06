@@ -209,23 +209,19 @@ router.get("/", checkAuth, getUser);
  *                  type: string
  *              occupation:
  *                  type: string
- *              designation:
+ *              latitude:
+ *                  type: string
+ *              longitude:
  *                  type: string
  *              company:
  *                  type: string
  *              website:
  *                  type: string
- *              worktimein:
- *                  type: string
- *              worktimeout:
- *                  type: string
  *              address:
  *                  type: string
  *              businesslogo:
  *                  type: string
- *              latitude:
- *                  type: string
- *              longitude:
+ *              about_company:
  *                  type: string
  *    responses:
  *      '200':
@@ -233,6 +229,15 @@ router.get("/", checkAuth, getUser);
  *      '500':
  *        description: Internal server error
  */
+
+/*
+ *              worktimein:
+ *                  type: string
+ *              worktimeout:
+ *                  type: string
+ *              designation:
+ *                  type: string
+*/
 router.post("/", checkAuth, upload.single("businesslogo"), addUser);
 
 /**

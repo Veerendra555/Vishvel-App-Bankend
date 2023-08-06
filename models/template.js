@@ -13,6 +13,10 @@ const templateSchema = mongoose.Schema({
   template: {
     type: String,
     required: true,
+  },
+  template_type: {
+    type: String,
+    required: true,
   }
 });
 

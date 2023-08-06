@@ -34,10 +34,10 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true,
     },
-    designation: {
-        type: String,
-        required: false,
-    },
+    // designation: {
+    //     type: String,
+    //     required: false,
+    // },
     company: {
         type: String,
         required: true,
@@ -46,14 +46,14 @@ const userSchema = mongoose.Schema({
         type: String,
         required: false,
     },
-    worktimein: {
-        type: String,
-        required: false,
-    },
-    worktimeout: {
-        type: String,
-        required: false,
-    },
+    // worktimein: {
+    //     type: String,
+    //     required: false,
+    // },
+    // worktimeout: {
+    //     type: String,
+    //     required: false,
+    // },
     address: {
         type: String,
         required: false,
@@ -77,7 +77,13 @@ const userSchema = mongoose.Schema({
     longitude: {
         type: String,
         required: true
+    },  
+    
+    about_company: {
+        type: String,
+        required: true
     },
+
     isdeleted: {
         type: Boolean,
         default: false

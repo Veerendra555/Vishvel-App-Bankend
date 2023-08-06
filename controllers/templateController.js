@@ -44,7 +44,8 @@ class TemplateController {
 			} else if (
 				!req.body.template ||
 				!req.body.color ||
-				!req.body.icon_color
+				!req.body.icon_color ||
+				!req.body.template_type
 			) {
 				reject({
 					code: 400,
