@@ -302,6 +302,92 @@ class UserController {
         });
     }
 
+    // resend(req) {
+    //     return new Promise(async(resolve, reject) => {
+    //         var mob = req.body.mob;
+    //         if (!mob) {
+    //             reject("Mobile number missing!!!");
+    //         } else {
+    //             try {
+    //                 const user = await users
+    //                     .findOne({
+    //                         mob_no: mob,
+    //                         isdeleted: false
+    //                     })
+    //                     .then((r) => r)
+    //                     .catch((err) =>
+    //                         reject({
+    //                             code: 500,
+    //                             msg: `${err}`,
+    //                         })
+    //                     );
+
+    //                 if (!user) {
+    //                     reject({
+    //                         code: 400,
+    //                         msg: "User not found!!!",
+    //                     });
+    //                 } else {
+    //                     let randNum = null;
+    //                     const otpDetail = await OTP.findOne({
+    //                             userid: user._id,
+    //                             isverified: false,
+    //                         })
+    //                         .then((r) => r)
+    //                         .catch((e) => {
+    //                             throw e;
+    //                         });
+
+    //                     if (!otpDetail) {
+    //                         throw new Error("Otp not found!!!");
+    //                     }
+    //                     randNum = otpDetail.otp;
+    //                     const textMsg = `Your verification code is ${randNum}.`;
+    //                     // let url = `https://www.smsgatewayhub.com/api/mt/SendSMS?APIKey=${process.env.MSGKEY}&senderid=${process.env.SENDERID}&channel=2&DCS=0&flashsms=0&number=91${mob}&text=${textMsg}&route=1`;
+    //                     // let url = `http://api.smscountry.com/SMSCwebservice_bulk.aspx?User=${process.env.SMS_COUNTRY_USER}&passwd=${process.env.SMS_COUNTRY_PASSWORD}&mobilenumber=91${mob}&message=${textMsg}&sid=${process.env.SMS_COUNTRY_SENDERID}&mtype=N&DR=Y`;
+    //                     // const res = await superagent.post(url);
+    //                     // // var result = JSON.parse(res.text);
+    //                     // var result = res.text.split(":")[0];
+    //                     // if (result == "OK") {
+    //                     //     resolve("OTP sent to your mobile number!!!");
+    //                     // } else {
+    //                     //     reject(`${result.message}`);
+    //                     // }
+    //                     let url = `http://api.smscountry.com/SMSCwebservice_bulk.aspx?User=${process.env.SMS_COUNTRY_USER}&passwd=${process.env.SMS_COUNTRY_PASSWORD}&mobilenumber=91${mob}&message=${textMsg}&sid=${process.env.SMS_COUNTRY_SENDERID}&mtype=N&DR=Y`;
+    //                     const res = await superagent.post(url);
+    //                     console.log(res.text);
+    //                     // var result = JSON.parse(res.text);
+    //                     var result = res.text.split(":")[0];
+    //                     if (result == "OK") {
+    //                         const data = {
+    //                             userid: user._id,
+    //                             otp: randNum,
+    //                             isverified: false,
+    //                         };
+
+    //                         const otp = new OTP(data);
+    //                         await otp
+    //                             .save()
+    //                             .then((r) => {
+    //                                 resolve(
+    //                                     "OTP sent to your mobile number!!!"
+    //                                 );
+    //                             })
+    //                             .catch((e) => {
+    //                                 throw e;
+    //                             });
+    //                     } else {
+    //                         reject(`${result.message}`);
+    //                     }
+    //                 }
+    //             } catch (err) {
+    //                 reject(err);
+    //             }
+    //         }
+    //     });
+    // }
+
+    
     resend(req) {
         return new Promise(async(resolve, reject) => {
             var mob = req.body.mob;
@@ -309,6 +395,11 @@ class UserController {
                 reject("Mobile number missing!!!");
             } else {
                 try {
+                    let randNum = Math.floor(100000 + Math.random() * 900000);
+                    // let randNum = '000000';
+                    // const textMsg = `Your verification code is ${randNum}.`;
+                    let textMsg = `Dear Customer your OTP code is ${randNum}. Regards, VISHVL`;
+
                     const user = await users
                         .findOne({
                             mob_no: mob,
@@ -322,35 +413,113 @@ class UserController {
                             })
                         );
 
+                    // console.log('user', user);
                     if (!user) {
-                        reject({
-                            code: 400,
-                            msg: "User not found!!!",
+                        const user = new users({
+                            mob_no: mob,
+                            exists: false,
                         });
+                        await user
+                            .save()
+                            .then(async(userData, err) => {
+                                if (err) {
+                                    throw err;
+                                }
+
+                                // let url = `https://www.smsgatewayhub.com/api/mt/SendSMS?APIKey=${process.env.MSGKEY}&senderid=${process.env.SENDERID}&channel=2&DCS=0&flashsms=0&number=91${mob}&text=${textMsg}&route=1`;
+                                let url = `http://api.smscountry.com/SMSCwebservice_bulk.aspx?User=${process.env.SMS_COUNTRY_USER}&passwd=${process.env.SMS_COUNTRY_PASSWORD}&mobilenumber=91${mob}&message=${textMsg}&sid=${process.env.SMS_COUNTRY_SENDERID}&mtype=N&DR=Y`;
+                                const res = await superagent.post(url);
+                                // var result = JSON.parse(res.text);
+                                var result = res.text.split(":")[0];
+                                if (result == "OK") {
+                                    const data = {
+                                        userid: userData._id,
+                                        otp: randNum,
+                                        isverified: false,
+                                    };
+
+                                    const otp = new OTP(data);
+                                    await otp
+                                        .save()
+                                        .then((r) => {
+                                            resolve(
+                                                "OTP sent to your mobile number!!!"
+                                            );
+                                        })
+                                        .catch((e) => {
+                                            throw e;
+                                        });
+                                } else {
+                                    reject(`${result.message}`);
+                                }
+                            })
+                            .catch((e) => {
+                                throw e;
+                            });
                     } else {
-                        let randNum = null;
                         const otpDetail = await OTP.findOne({
                                 userid: user._id,
-                                isverified: false,
+                                // isverified: false,
                             })
                             .then((r) => r)
                             .catch((e) => {
                                 throw e;
                             });
+                        // console.log("OTPD: ", otpDetail)
 
-                        if (!otpDetail) {
-                            throw new Error("Otp not found!!!");
+                        if (otpDetail && otpDetail.isverified == false) {
+                            randNum = otpDetail.otp;
+                            textMsg = `Dear Customer your OTP code is ${randNum}. Regards, VISHVL`;
                         }
-                        randNum = otpDetail.otp;
-                        const textMsg = `Your verification code is ${randNum}.`;
 
                         // let url = `https://www.smsgatewayhub.com/api/mt/SendSMS?APIKey=${process.env.MSGKEY}&senderid=${process.env.SENDERID}&channel=2&DCS=0&flashsms=0&number=91${mob}&text=${textMsg}&route=1`;
                         let url = `http://api.smscountry.com/SMSCwebservice_bulk.aspx?User=${process.env.SMS_COUNTRY_USER}&passwd=${process.env.SMS_COUNTRY_PASSWORD}&mobilenumber=91${mob}&message=${textMsg}&sid=${process.env.SMS_COUNTRY_SENDERID}&mtype=N&DR=Y`;
                         const res = await superagent.post(url);
+                        // console.log('res', res);
                         // var result = JSON.parse(res.text);
-                        var result = res.text.split(":")[0];
-                        if (result == "OK") {
-                            resolve("OTP sent to your mobile number!!!");
+                        var result = res.text.split(":")[0].toLowerCase().trim();
+                        // console.log('res:', result, result == "ok");
+
+                        if (result == "ok") {
+                            if (!otpDetail) {
+                                const data = {
+                                    userid: user._id,
+                                    otp: randNum,
+                                    isverified: false,
+                                };
+                                // console.log("DATA: ", data)
+                                const otp = new OTP(data);
+                                await otp
+                                    .save()
+                                    .then((r) => {
+                                        resolve("OTP sent to your mobile number!!!");
+                                    })
+                                    .catch((e) => {
+                                        throw e;
+                                    });
+                            }
+                            // else if (
+                            //     otpDetail &&
+                            //     otpDetail.isverified == true
+                            // ) 
+                            else {
+                                // console.log("randNum: ", randNum)
+                                await OTP.findOneAndUpdate({
+                                        _id: otpDetail._id,
+                                    }, {
+                                        otp: randNum,
+                                        isverified: false,
+                                    })
+                                    .then((r) => {
+                                        resolve("OTP sent to your mobile number!!!");
+                                    })
+                                    .catch((err) =>
+                                        reject({
+                                            code: 500,
+                                            msg: `${err}`,
+                                        })
+                                    );
+                            }
                         } else {
                             reject(`${result.message}`);
                         }
