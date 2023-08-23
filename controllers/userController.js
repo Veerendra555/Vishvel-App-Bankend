@@ -397,8 +397,8 @@ class UserController {
                 try {
                     let randNum = Math.floor(100000 + Math.random() * 900000);
                     // let randNum = '000000';
-                    // const textMsg = `Your verification code is ${randNum}.`;
-                    let textMsg = `Dear Customer your OTP code is ${randNum}. Regards, VISHVL`;
+                    let textMsg = `Your verification code is ${randNum}.`;
+                    // let textMsg = `Dear Customer your OTP code is ${randNum}. Regards, VISHVL`;
 
                     const user = await users
                         .findOne({
@@ -469,7 +469,8 @@ class UserController {
 
                         if (otpDetail && otpDetail.isverified == false) {
                             randNum = otpDetail.otp;
-                            textMsg = `Dear Customer your OTP code is ${randNum}. Regards, VISHVL`;
+                             textMsg = `Your verification code is ${randNum}.`;
+                            // textMsg = `Dear Customer your OTP code is ${randNum}. Regards, VISHVL`;
                         }
 
                         // let url = `https://www.smsgatewayhub.com/api/mt/SendSMS?APIKey=${process.env.MSGKEY}&senderid=${process.env.SENDERID}&channel=2&DCS=0&flashsms=0&number=91${mob}&text=${textMsg}&route=1`;

@@ -1,14 +1,14 @@
 const mongoose = require("../db/db");
 var ObjectId = mongoose.Schema.Types.ObjectId;
-
+var Schema = mongoose.Schema;
 // const bcrypt = require('bcrypt');
 
 // let saltRounds = 10;
 
 const userSchema = mongoose.Schema({
     userid: {
-        type: ObjectId,
-        required: true,
+        type : Schema.Types.ObjectId,
+        ref : "users" 
     },
     name: {
         type: String,

@@ -62,6 +62,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cors());
 
 app.use('/user', require('./routers/userRoute'));
+app.use('/userContactLog', require('./routers/contactlogtypeRoute'));
 app.use('/template', require('./routers/templateRoute'));
 app.use('/template/select', require('./routers/templateSelectedRoute'));
 app.use('/otp', require('./routers/otpRoute'));
@@ -69,6 +70,7 @@ app.use('/about', require('./routers/aboutRoute'));
 app.use('/favourite', require('./routers/favouriteRoute'));
 app.use('/feed', require('./routers/feedRoute'));
 app.use('/product', require('./routers/productRoute'));
+app.use('/deal', require('./routers/dealRouter'));
 app.use('/contact', require('./routers/contactRoute'));
 app.use('/cart', require('./routers/cartRoute'));
 app.use('/chat', require('./routers/chatRoute'));

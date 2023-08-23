@@ -170,7 +170,7 @@ router.get("/", checkAuth, getContact);
  *      '500':
  *        description: Internal server error
  */
-router.post("/", checkAuth, addContact);
+router.post("/", addContact);
 
 router.post("/reportContact", checkAuth, reportContact);
 router.post("/blockContact", checkAuth, blockContact);
