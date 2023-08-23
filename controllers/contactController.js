@@ -6,6 +6,8 @@ const contact = require('../models/contacts');
 
 const Contact = require('../models/contacts');
 const UserDetails = require('../models/userdetail');
+const contactLogType = require('../models/contactlogtype');
+const User = require('../models/user');
 var nodemailer = require('nodemailer');
 
 class ContactController {
@@ -307,7 +309,8 @@ class ContactController {
     }
 
     addContact(req) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async(resolve, reject) => {
+            console.log(req.body)
             if (!Object.keys(req.body).length) {
                 reject({
                     code: 400,
@@ -343,13 +346,21 @@ class ContactController {
                         });
                     });
             } else if (req.body.userid) {
+                console.log("req.body.userid",req.body.userid)
                 req.body.userid = ObjectId(req.body.userid);
+                let count = await Contact.countDocuments({
+                    userid: req.body.userid,
+                });
+                console.log("Count", count);
+                if(count>0)
+                {
                 Contact.findOneAndUpdate({
                     userid: req.body.userid,
-                },
+                },{upsert: true},
                     req.body
                 )
                     .then((data) => {
+                        console.log("data===>",data)
                         resolve({
                             code: 200,
                             result: data,
@@ -361,14 +372,49 @@ class ContactController {
                             msg: `${e}`,
                         });
                     });
+                }
+                else
+                {
+                    req.body.contacts = req.body.contacts.map((x) => {
+                        x = x.replace(/ /g, '');
+                        x = x.replace(/-/g, '');
+                        return x;
+                    });
+                    
+                    const contact = new Contact(req.body);
+                    console.log("Contact Calling ",contact)
+                    contact
+                        .save()
+                        .then(async(data) => {
+                            console.log("Data Inside Save",data , contact,contact.contacts)
+                            for(let i=0; i<contact.contacts.length;i++)
+                            {
+                                console.log("Data For Inside Save",contact.contacts[i])
+                                await this.saveContactLogDetails(contact.contacts[i],req.body.userid);
+                            }
+                            console.log("data===>",data,)
+                            resolve({
+                                code: 200,
+                                result: data,
+                            });
+                        })
+                        .catch((e) => {
+                            reject({
+                                code: 500,
+                                msg: `${e}`,
+                            });
+                        });
+                }
+
             } else {
                 req.body.contacts = req.body.contacts.map((x) => {
                     x = x.replace(/ /g, '');
                     x = x.replace(/-/g, '');
                     return x;
                 });
-
+                
                 const contact = new Contact(req.body);
+                console.log("Contact Calling ",contact)
                 contact
                     .save()
                     .then((data) => {
@@ -386,6 +432,49 @@ class ContactController {
             }
         });
     }
+
+
+async saveContactLogDetails(contanctNo,userid)
+    {  
+//    return new Promise(async(resolve, reject) => { 
+      console.log("saveContactLogDetails Calling")
+        let data = await UserDetails.findOne({
+            mob_no: contanctNo,
+        });
+        console.log("saveContactLogDetails",data)
+        if(data != null)
+        {
+        const contactlog = new contactLogType({
+            userid : userid,
+            businessid : data._id.toString(),
+        });
+        console.log(contactlog,"contactlog")
+        contactlog
+            .save()
+            .then((data) => {
+                console.log("ContackLog save",data)
+                // resolve({
+                //     code: 200,
+                //     result: data,
+                // });
+                return;
+            })
+            .catch((e) => {
+                console.log("ContackLog Not save",data,e)
+                return;
+                // reject({
+                //     code: 500,
+                //     msg: `${e}`,
+                // });
+            });
+   
+        }
+    // })
+
+
+
+    }
+
 
     blockedContact(req) {
         return new Promise((resolve, reject) => {
