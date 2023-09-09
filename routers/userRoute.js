@@ -238,7 +238,7 @@ router.get("/", checkAuth, getUser);
  *              designation:
  *                  type: string
 */
-router.post("/", checkAuth, upload.single("businesslogo"), addUser);
+router.post("/", upload.single("businesslogo"), addUser);
 
 /**
  * @swagger
