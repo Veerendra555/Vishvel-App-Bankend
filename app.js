@@ -3,9 +3,12 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 
+var cron = require('node-cron');
+
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
 const path = require('path');
+const dealDetails = require("./models/deal")
 let bodyParser = require('body-parser');
 let cors = require('cors');
 let resHandler = require('./handlers/responseHandler');
@@ -140,6 +143,43 @@ app.post('/refresh-token', async (req, res) => {
 	}
 });
 
+cron.schedule('0 1 * * *', () => {
+	console.log('Running a job at 01:00 at Asia/Kolkata timezone');
+	closeDeals();
+  }, {
+	scheduled: true,
+	timezone: "Asia/Kolkata"
+  },
+  )
+
+function  closeDeals() {
+	return new Promise(async (resolve, reject) => {
+		var start = new Date();
+		start.setHours(0,0,0,0);
+		var end = new Date();
+		dealDetails.updateMany(
+			{ date: {$lt: start} },
+			{ $set: { is_active: false } }
+		  )
+		  .then(x=>{
+			console.log("Close Deals Are Working...",x)
+			// resolve({
+			// 	code: 200,
+			// 	msg: "Product updated successfully",
+			// });
+		}).catch(err=>{
+			console.log("Close Deals Are Not Working...",x)
+			// reject({
+			// 	code: 400,
+			// 	Error: `${err}`,
+			// });
+		  })	
+		})
+}
+
+
+
+
 app.listen(port, console.log(`Listening to port ${port}...`));
 
 function normalizePort(val) {
@@ -157,3 +197,5 @@ function normalizePort(val) {
 
 	return false;
 }
+
+
