@@ -90,15 +90,22 @@ function addDeal(req, res) {
 }
 
 function decodeBase64Image(dataString) {
-  var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
+  // var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
     response = {};
 
-  if (matches.length !== 3) {
-    return new Error('Invalid input string');
-  }
+  // if (matches.length !== 3) {
+  //   return new Error('Invalid input string');
+  // }
 
-  response.type = matches[1];
-  response.data = new Buffer(matches[2], 'base64');
+  // response.type = matches[1];
+  // response.data = new Buffer(matches[2], 'base64');
+
+  //   if (dataString.length > 0) {
+  //   return new Error('Invalid input string');
+  // }
+
+  response.type = dataString;
+  response.data = new Buffer(dataString, 'base64');
 
   return response;
 }
@@ -111,8 +118,9 @@ function addNewDeal(req, res) {
   // req.body.deal_image = req.file && req.file.path ? req.file.path : null;
   var imageBuffer = decodeBase64Image(req.body.deal_image);
 console.log(imageBuffer);
-
-fs.writeFile(`public/deals/${Date.now() + "-" + req.body.image_name}`, imageBuffer.data, function(err) {
+let imagePath = `public/deals/${Date.now() + "-" + req.body.image_name}`
+fs.writeFile(imagePath, imageBuffer.data, function(err) {
+  req.body.deal_image = imagePath;
   dealController.addDeal(req)
     .then((data) => {
       if (data.code == 204) {
