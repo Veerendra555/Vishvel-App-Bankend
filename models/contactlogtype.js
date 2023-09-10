@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 const contactLogTypeSchema = mongoose.Schema({
   userid: {
     type : Schema.Types.ObjectId,
-    ref : "userdetails"  
+    ref : "users"  
   },
   businessid: {
     type : Schema.Types.ObjectId,

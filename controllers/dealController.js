@@ -88,6 +88,7 @@ end.setHours(23,59,59,999);
                 });
             }else {
                 let data = req.body;
+
                 const regUser = await users.findById(data.userid);
 
                 if (!regUser) {
@@ -105,7 +106,14 @@ end.setHours(23,59,59,999);
 						.then(() => {
 							resolve({
 								code: 200,
-								result: data,
+								result: {
+								 "userid": data.userid,
+								 "date": data.date,
+								 "is_active": data.is_active,
+								 "_id": data._id,
+								 "createdAt": data.createdAt,
+								 "updatedAt": data.updatedAt,
+								},
 							});
 						})
 						.catch((err) => {
