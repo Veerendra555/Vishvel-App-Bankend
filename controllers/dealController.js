@@ -49,7 +49,7 @@ end.setHours(23,59,59,999);
 	getDealById(req) {
 		return new Promise((resolve, reject) => {
 			let query = {userid:req.params.userid };
-			Deal.find(query)
+			Deal.find(query).sort({date:-1})
 				.then((data) => {
 					if (data.length == 0) {
 						resolve({
