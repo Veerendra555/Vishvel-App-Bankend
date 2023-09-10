@@ -351,7 +351,7 @@ router.post("/rating", checkAuth, rating);
  *      '500':
  *        description: Internal server error
  */
- router.post("/delete", checkAuth, deleteUser);
+ router.post("/delete",  deleteUser);
 
  /**
   * @swagger
@@ -376,6 +376,6 @@ router.post("/rating", checkAuth, rating);
   *      '500':
   *        description: Internal server error
   */
-  router.post("/toggle/private", checkAuth, toggleIsPrivate);
+  router.post("/toggle/private",  toggleIsPrivate);
 
 module.exports = router;
