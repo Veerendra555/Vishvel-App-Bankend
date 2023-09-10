@@ -52,6 +52,7 @@ function addUser(req, res) {
   //   throw new Error("Image path missing!!!");
   // }
   req.body.businesslogo = req.file && req.file.path ? req.file.path : null;
+  
   UserController.addUser(req)
     .then((data) => {
       if (data.code == 204) {

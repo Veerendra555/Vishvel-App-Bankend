@@ -2,6 +2,7 @@ const router = require("express").Router();
 const dealController = require("../controllers/dealController");
 const multer = require("multer");
 const checkAuth = require("../middlewares/auth");
+const fs = require('fs');
 
 let resHandler = require("../handlers/responseHandler");
 
@@ -88,6 +89,51 @@ function addDeal(req, res) {
     });
 }
 
+function decodeBase64Image(dataString) {
+  var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
+    response = {};
+
+  if (matches.length !== 3) {
+    return new Error('Invalid input string');
+  }
+
+  response.type = matches[1];
+  response.data = new Buffer(matches[2], 'base64');
+
+  return response;
+}
+
+
+function addNewDeal(req, res) {
+  // if (!req.file || !req.file.path) {
+  //   throw new Error("Image path missing!!!");
+  // }
+  // req.body.deal_image = req.file && req.file.path ? req.file.path : null;
+  var imageBuffer = decodeBase64Image(req.body.deal_image);
+console.log(imageBuffer);
+
+fs.writeFile(`public/deals/${Date.now() + "-" + req.body.image_name}`, imageBuffer.data, function(err) {
+  dealController.addDeal(req)
+    .then((data) => {
+      if (data.code == 204) {
+        res
+          .status(200)
+          .json(resHandler(data.code, data.result ? data.result : data.msg));
+      } else {
+        res
+          .status(data.code)
+          .json(resHandler(data.code, data.result ? data.result : data.msg));
+      }
+    })
+    .catch((error) => {
+      res.status(error.code).json(resHandler(error.code, error.msg));
+    });
+ });
+  console.log("Image",req.body);
+
+}
+
+
 /**
  * @swagger
  * /deal/:
@@ -157,6 +203,9 @@ router.get("/:userid",  getDealById);
  *              designation:
  *                  type: string
 */
-router.post("/",  upload.single("deal_image"), addDeal);
+// router.post("/",  upload.single("deal_image"), addDeal);
+
+
+router.post("/", addNewDeal);
 
 module.exports = router;
