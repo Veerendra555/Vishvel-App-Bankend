@@ -262,6 +262,14 @@ class UserController {
                                     reject(`${err}`);
                                 });
                             // .then(u => {
+                             var userData =  await UserDetails
+                                .findOne({
+                                    mob_no: mob,
+                                })
+                                .then((r) => r.toObject())
+                                .catch((err) => {
+                                    reject(`${err}`);
+                                });
                             if (u == null) {
                                 const user = new users({
                                     mob_no: mob,
@@ -269,6 +277,7 @@ class UserController {
                                 });
                                 user.save()
                                     .then(async(data) => {
+                                        data.isprivate = userData.isprivate || false;
                                         const tokens = await this.getTokens(
                                             data
                                         );
@@ -281,6 +290,7 @@ class UserController {
                                         reject(`${err}`);
                                     });
                             } else {
+                                u.isprivate = userData.isprivate || false;
                                 const tokens = await this.getTokens(u);
                                 resolve({
                                     ...u,

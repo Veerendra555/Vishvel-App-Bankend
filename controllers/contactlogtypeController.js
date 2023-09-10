@@ -9,7 +9,7 @@ class ContactlogtypeController {
 
 	getContactLogType(req) {
 		return new Promise((resolve, reject) => {
-		ContactLogType.find({userid: req.query.userid}).populate('businessid').lean()
+		ContactLogType.find({userid: req.query.userid}).populate('businessid').lean().sort({createdAt:-1})
 				.then((data) => {
 					if (data.length == 0) {
 						resolve({
