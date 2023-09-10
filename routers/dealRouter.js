@@ -89,6 +89,27 @@ function addDeal(req, res) {
     });
 }
 
+function updateDeal(req, res) {
+  // if (!req.file || !req.file.path) {
+  //   throw new Error("Image path missing!!!");
+  // }
+  dealController.updateDealById(req)
+    .then((data) => {
+      if (data.code == 204) {
+        res
+          .status(200)
+          .json(resHandler(data.code, data.result ? data.result : data.msg));
+      } else {
+        res
+          .status(data.code)
+          .json(resHandler(data.code, data.result ? data.result : data.msg));
+      }
+    })
+    .catch((error) => {
+      res.status(error.code).json(resHandler(error.code, error.msg));
+    });
+}
+
 function decodeBase64Image(dataString) {
   // var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
     response = {};
@@ -215,5 +236,8 @@ router.get("/:userid",  getDealById);
 
 
 router.post("/", addNewDeal);
+
+router.put("/:id", updateDeal);
+
 
 module.exports = router;

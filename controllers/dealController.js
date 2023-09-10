@@ -106,14 +106,7 @@ end.setHours(23,59,59,999);
 						.then(() => {
 							resolve({
 								code: 200,
-								result: {
-								 "userid": data.userid,
-								 "date": data.date,
-								 "is_active": data.is_active,
-								 "_id": data._id,
-								 "createdAt": data.createdAt,
-								 "updatedAt": data.updatedAt,
-								},
+								result: data,
 							});
 						})
 						.catch((err) => {
@@ -133,6 +126,38 @@ end.setHours(23,59,59,999);
             }
         });
     }
+
+	updateDealById(req)
+	{
+		return new Promise(async(resolve, reject) => {
+
+                const regDeal = await Deal.findById(req.params.id);
+
+                if (!regDeal) {
+                    throw new Error("Deal not found!!!");
+                }
+				else
+				{
+				Deal.updateOne(
+					{ "_id": req.params.id},
+					{$set: {"is_active": true,date : Date.now() }},
+				)
+				.then((data) => {
+					resolve({
+						code: 200,
+						result: data,
+					});
+				})
+				.catch((err) => {
+					reject({
+						code: 500,
+						msg: `${err}`,
+					});
+				});
+				}
+            }
+		)
+	}
 }
 
 module.exports = new DealController();
