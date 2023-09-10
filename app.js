@@ -5,7 +5,7 @@ const app = express();
 
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
-
+const path = require('path');
 let bodyParser = require('body-parser');
 let cors = require('cors');
 let resHandler = require('./handlers/responseHandler');
@@ -31,6 +31,9 @@ const swaggerOptions = {
 };
 
 app.use('/public', express.static('public'));
+
+app.use(express.static(path.join(__dirname, "public/deals")));
+app.use("/deals_images", express.static("public/deals"));
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
