@@ -27,6 +27,25 @@ let upload = multer({
 	fileFilter,
 });
 
+function getCards(req, res) {
+	TemplateController.getCards(req)
+		.then((data) => {
+			if (data.code == 204) {
+				res.status(200).json(
+					resHandler(data.code, data.result ? data.result : data.msg)
+				);
+			} else {
+				res.status(data.code).json(
+					resHandler(data.code, data.result ? data.result : data.msg)
+				);
+			}
+		})
+		.catch((error) => {
+			res.status(error.code).json(resHandler(error.code, error.msg));
+		});
+}
+
+
 function getTemplate(req, res) {
 	TemplateController.getTemplate(req)
 		.then((data) => {
@@ -88,6 +107,9 @@ function addTemplate(req, res) {
  *        description: Internal server error
  */
 router.get('/', checkAuth, getTemplate);
+router.get('/getAllCards/:userid',  getCards);
+
+
 
 /**
  * @swagger

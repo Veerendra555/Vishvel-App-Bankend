@@ -15,6 +15,7 @@ let resHandler = require('./handlers/responseHandler');
 
 let generateNewToken = require('./middlewares/verifyRefreshToken');
 
+const socket = require("socket.io");
 const port = normalizePort(process.env.PORT || '3000');
 
 const swaggerOptions = {
@@ -81,6 +82,7 @@ app.use('/contact', require('./routers/contactRoute'));
 app.use('/cart', require('./routers/cartRoute'));
 app.use('/chat', require('./routers/chatRoute'));
 app.use('/order', require('./routers/orderRoute'));
+app.use('/message', require('./routers/userChatRoute'));
 
 /**
  * @swagger
@@ -180,7 +182,31 @@ function  closeDeals() {
 
 
 
-app.listen(port, console.log(`Listening to port ${port}...`));
+let server = app.listen(port, console.log(`Listening to port ${port}...`));
+
+
+const io = socket(server, {
+	cors: {
+	  origin: "http://localhost:3000",
+	  credentials: true,
+	},
+  });
+
+
+global.onlineUsers = new Map();
+io.on("connection", (socket) => {
+  global.chatSocket = socket;
+  socket.on("add-user", (userId) => {
+    onlineUsers.set(userId, socket.id);
+  });
+
+  socket.on("send-msg", (data) => {
+    const sendUserSocket = onlineUsers.get(data.to);
+    if (sendUserSocket) {
+      socket.to(sendUserSocket).emit("msg-recieve", data.msg);
+    }
+  });
+});
 
 function normalizePort(val) {
 	var port = parseInt(val, 10);
