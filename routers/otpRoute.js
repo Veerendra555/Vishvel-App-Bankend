@@ -16,9 +16,11 @@ function otpGenerate(req, res) {
 function verifyOTP(req, res) {
     UserController.verifyOTP(req)
         .then(data => {
+            console.log("Data in Router",data)
             res.status(200).json(resHandler(200, data));
         })
         .catch(error => {
+            console.log("Error in Router",error)
             res.status(500).json(resHandler(500, error));
         });
 }

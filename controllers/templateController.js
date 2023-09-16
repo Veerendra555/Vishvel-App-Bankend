@@ -43,7 +43,7 @@ class TemplateController {
 			console.log("get Cards Calling..1")
 			try {
 			userDetail.findOne({userid:req.params.userid})
-				.then((data) => {
+				.then(async (data) => {
 					if (data.length == 0) {
 						resolve({
 							code: 204,
@@ -54,13 +54,22 @@ class TemplateController {
 						let newTemplateList = [];
 						for(let i=0;i<templateList.length;i++)
 						{
-						fs.readFile(`${__dirname}/../public/cards/${templateList[i]}`, 'utf8', (err, svgData) => {
+					    await fs.readFile(`${__dirname}/../public/cards/${templateList[i]}`, 'utf8', (err, svgData) => {
 						 let finalData =	svgData.replace(/User Address/g, data.address )
 						                    .replace(/UserEmail/g, data.email)
 											.replace(/UserPhone/g, data.mob_no)
 											.replace(/Designation/g, data.occupation)
 											.replace(/UserName/g, data.name);
 							console.log("New SVG ==>",finalData);
+                             newTemplateList.push(finalData)
+							 if(templateList.length === i+1) 
+							 {
+								console.log("Respoce Sent")
+								resolve({
+									code: 200,
+									result: newTemplateList,
+								});
+							 }
 							if (err) {
 							  console.error(err);
 							//   return res.status(500).send('Error reading SVG file');
@@ -69,10 +78,9 @@ class TemplateController {
 										msg: 'No template found!!!',
 									});
 							}
-						
 							// Modify the SVG data (example: change the color of all <circle> elements)
 							// const $ = cheerio.load(svgData);
-							newTemplateList.push(svg)
+							// newTemplateList.push(svg)
 							// $('circle').attr('fill', 'red'); // Change circle fill color to red
 						
 							// Send the modified SVG data to the client
@@ -81,11 +89,7 @@ class TemplateController {
 
 							// res.set('Content-Type', 'image/svg+xml');
 							// res.send(modifiedSVG);
-						  });	
-						  resolve({
-							code: 200,
-							result: newTemplateList,
-						});
+						  });
 						} 
 						// resolve({
 						// 	code: 200,

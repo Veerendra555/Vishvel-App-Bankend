@@ -93,17 +93,12 @@
                         <g>
                          <defs>
             <clipPath id="myCircle">
-               <circle cx="250" cy="145" r="125" fill="#FFFFFF" />
+               <circle cx="250" cy="50" r="150" fill="#FFFFFF" />
             </clipPath>
          </defs>
-           <image transform="matrix(1 0 0 1 174.4186 20.7697)" width="400" height="100" xlink:href="https://www.shutterstock.com/shutterstock/photos/2114899442/display_1500/stock-vector-creative-letter-p-d-monogram-logo-design-template-2114899442.jpg" clip-path="url(#myCircle)" />
+           <image width="420" height="50" xlink:href="https://www.shutterstock.com/shutterstock/photos/1757050334/display_1500/stock-vector-trilabs-three-lab-logo-vector-icon-illustration-1757050334.jpg" clip-path="url(#myCircle)" />
 
-                         <!-- <image width="200" height="200" xlink:href="https://www.tutorialspoint.com/videotutorials/images/coding_ground_home.jpg"  /> -->
-                        <!-- <img src="https://www.tutorialspoint.com/html5/src/svg/extensions/imagelib/smiley.svg" alt="smile" height="100px" width="100px" /> -->
-                                <!-- <image href="https://img.freepik.com/free-vector/bird-colorful-logo-gradient-vector_343694-1365.jpg?w=740&t=st=1694853012~exp=1694853612~hmac=4ec2809849fd4e2afa4ade498398384e2180bb8e4441302e05856990303ddef0" height="100" width="100" /> -->
-                                <!-- <polygon style="fill:#32BCAD;" points="211.058,27.833 206.352,36.158 210.25,42.683 218.645,27.833                               "/>
-                                <polygon style="fill:#00A79D;" points="210.572,42.092 206.576,49.182 194.507,27.833 202.175,27.808                              "/> -->
-                        </g>
+                                            </g>
                 </g>
                 <g id="XMLID_462_">
 
