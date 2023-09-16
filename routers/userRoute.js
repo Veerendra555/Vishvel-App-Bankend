@@ -47,13 +47,40 @@ function getUser(req, res) {
     });
 }
 
+
+function decodeBase64Image(dataString) {
+  // var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
+    response = {};
+
+  // if (matches.length !== 3) {
+  //   return new Error('Invalid input string');
+  // }
+
+  // response.type = matches[1];
+  // response.data = new Buffer(matches[2], 'base64');
+
+  //   if (dataString.length > 0) {
+  //   return new Error('Invalid input string');
+  // }
+
+  response.type = dataString;
+  response.data = new Buffer(dataString, 'base64');
+
+  return response;
+}
+
 function addUser(req, res) {
   // if (!req.file || !req.file.path) {
   //   throw new Error("Image path missing!!!");
   // }
-  req.body.businesslogo = req.file && req.file.path ? req.file.path : null;
+  // req.body.businesslogo = req.file && req.file.path ? req.file.path : null;
+  var imageBuffer = decodeBase64Image(req.body.businesslogo);
+  console.log(imageBuffer);
+  let imagePath = `public/businesslogos/${Date.now() + "-" + req.body.image_name}`
   
-  UserController.addUser(req)
+  fs.writeFile(imagePath, imageBuffer.data, function(err) {
+    req.body.businesslogo = imagePath;
+    UserController.addUser(req)
     .then((data) => {
       if (data.code == 204) {
         res
@@ -68,7 +95,12 @@ function addUser(req, res) {
     .catch((error) => {
       res.status(error.code).json(resHandler(error.code, error.msg));
     });
+   });
+
 }
+
+
+
 
 function search(req, res) {
   UserController.search(req)

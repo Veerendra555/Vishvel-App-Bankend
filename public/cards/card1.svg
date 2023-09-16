@@ -90,10 +90,15 @@
 				
 					<text transform="matrix(1 0 0 1 174.7325 64.8186)" style="fill:#303642; font-family:'MyriadPro-Regular'; font-size:3.9398px;">S L O G A N G O E S H E R E</text>
 			</g>
-			<g>
-				<polygon style="fill:#32BCAD;" points="211.058,27.833 206.352,36.158 210.25,42.683 218.645,27.833 				"/>
-				<polygon style="fill:#00A79D;" points="210.572,42.092 206.576,49.182 194.507,27.833 202.175,27.808 				"/>
-			</g>
+			 <g>
+                         <defs>
+            <clipPath id="myCircle">
+               <circle cx="250" cy="50" r="150" fill="#FFFFFF" />
+            </clipPath>
+         </defs>
+           <image width="420" height="50" xlink:href="https://www.shutterstock.com/shutterstock/photos/1757050334/display_1500/stock-vector-trilabs-three-lab-logo-vector-icon-illustration-1757050334.jpg" clip-path="url(#myCircle)" />
+
+         </g>
 		</g>
 		<g id="XMLID_462_">
 			

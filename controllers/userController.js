@@ -201,12 +201,13 @@ class UserController {
                             isdeleted: false
                         })
                         .then((r) => r)
-                        .catch((err) =>
+                        .catch((err) => {
+                         console.log("Error 1",err);
                             reject({
                                 code: 500,
                                 msg: `${err}`,
                             })
-                        );
+                })
                     if (!user) {
                         reject({
                             code: 400,
@@ -223,13 +224,14 @@ class UserController {
                             isverified: false,
                         })
                         .then((r) => r)
-                        .catch((err) =>
+                        .catch((err) =>{
+                            console.log("Error 2",err);
                             reject({
                                 code: 500,
                                 msg: `${err}`,
                             })
-                        );
-                    // console.log("OTPDetails: ", otpDetail)
+                });
+                    console.log("OTPDetails: ", otpDetail)
                     if (!otpDetail || otpDetail == null) {
                         result.message = "Login failed. Please try again!";
                     } else {
@@ -239,16 +241,17 @@ class UserController {
                                 isverified: true,
                             })
                             .then((r) => r)
-                            .catch((err) =>
+                            .catch((err) =>{
+                                
                                 reject({
                                     code: 500,
                                     msg: `${err}`,
                                 })
-                            );
+                    });
                         result.type = "success";
                     }
 
-                    // console.log("Result: ", result)
+                    console.log("Result: ", result)
 
                     if (result && result.type && result.type.localeCompare("success") == 0) {
                         try {
@@ -259,14 +262,16 @@ class UserController {
                                 })
                                 .then((r) => r.toObject())
                                 .catch((err) => {
+                                    console.log(err)
                                     reject(`${err}`);
                                 });
+                        console.log("U--------->",u)
                             // .then(u => {
                              var userData =  await UserDetails
                                 .findOne({
                                     mob_no: mob,
                                 })
-                                .then((r) => r.toObject())
+                                .then((r) => r)
                                 .catch((err) => {
                                     reject(`${err}`);
                                 });
@@ -275,9 +280,15 @@ class UserController {
                                     mob_no: mob,
                                     exists: false,
                                 });
+                                console.log("userData",userData)
                                 user.save()
                                     .then(async(data) => {
-                                        data.isprivate = userData.isprivate || false;
+                                        console.log("userData",userData)
+                                        console.log(userData != null && userData != undefined)
+                                        console.log(userData.isprivate)
+                                        data.isprivate = userData != null && userData != undefined ? userData.isprivate : false;
+                                        data["isprivate"] = userData != null && userData != undefined ? userData.isprivate : false;
+                                        console.log(data);
                                         const tokens = await this.getTokens(
                                             data
                                         );
@@ -287,11 +298,18 @@ class UserController {
                                         });
                                     })
                                     .catch((err) => {
+                                        console.log("error From Data==>",err);
                                         reject(`${err}`);
                                     });
                             } else {
-                                u.isprivate = userData.isprivate || false;
+                                // console.log("else==>",userData)
                                 const tokens = await this.getTokens(u);
+                                if(userData != null && userData != undefined)
+                                u['isprivate'] = userData.isprivate;
+                             else
+                              u['isprivate'] = false;
+                            console.log(tokens,"tokens==========")
+                             console.log("U===>Afetr Update",u)
                                 resolve({
                                     ...u,
                                     tokens,
@@ -300,12 +318,15 @@ class UserController {
                             //   })
                             // .catch(err => reject(`${err}`))
                         } catch (err) {
+                            console.log("outside Error",err)
                             reject(`${err}`);
                         }
                     } else {
+                        console.log("outside1 Error",err)
                         reject(`${result.message}`);
                     }
                 } catch (err) {
+                    console.log("outside3 Error",err)
                     reject(err);
                 }
             }
