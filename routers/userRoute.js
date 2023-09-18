@@ -3,6 +3,7 @@ const UserController = require("../controllers/userController");
 const ReviewController = require("../controllers/reviewController");
 const multer = require("multer");
 const checkAuth = require("../middlewares/auth");
+const fs = require("fs");
 
 let resHandler = require("../handlers/responseHandler");
 
@@ -271,7 +272,7 @@ router.get("/", checkAuth, getUser);
  *              designation:
  *                  type: string
 */
-router.post("/", upload.single("businesslogo"), addUser);
+router.post("/", addUser);
 
 /**
  * @swagger
