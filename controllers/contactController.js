@@ -354,17 +354,88 @@ class ContactController {
                 console.log("Count", count);
                 if(count>0)
                 {
-                Contact.findOneAndUpdate({
+                Contact.findOne({
                     userid: req.body.userid,
-                },{upsert: true},
-                    req.body
+                }
                 )
-                    .then((data) => {
+                    .then(async(data) => {
                         console.log("data===>",data)
-                        resolve({
-                            code: 200,
-                            result: data,
+                        req.body.contacts = req.body.contacts.map((x) => {
+                            x = x.replace(/ /g, '');
+                            x = x.replace(/-/g, '');
+                            return x;
                         });
+                       let newList = [...req.body.contacts , ...data.contacts]
+                        console.log("New List---->",newList);
+                        newList = [...new Set(newList)];
+                      let newCreatedList=[];
+                     for(let i=0;i<req.body.contacts.length;i++)
+                     {
+                        let pushNo = true;
+                        for(let j=0;j<data.contacts.length;j++)
+                        {
+                           if(req.body.contacts[i] == data.contacts[j])
+                           {
+                            pushNo = false;
+                            break;
+                           }
+                        }
+                        if(pushNo)
+                        {
+                         console.log("Array Push...",req.body.contacts[i])
+                        newCreatedList.push(req.body.contacts[i]);
+                        await this.saveContactLogDetails(req.body.contacts[i],req.body.userid);
+                        }
+                      }
+                      Contact.findOneAndUpdate(
+                        {userid: req.body.userid},
+                        { $set:
+                            {
+                            contacts: newList
+                            }
+                         }
+                    ).then(async(finalData) => {
+                                console.log("Data Inside Save",finalData )
+                                resolve({
+                                    code: 200,
+                                    result: finalData,
+                                });
+                            })
+                            .catch((e) => {
+                                reject({
+                                    code: 500,
+                                    msg: `${e}`,
+                                });
+                            });
+
+                        // const contact = new Contact(req.body);
+                        // console.log("Contact Calling ",contact)
+                        // contact
+                        //     .save()
+                        //     .then(async(data) => {
+                        //         console.log("Data Inside Save",data , contact,contact.contacts)
+                        //         for(let i=0; i<contact.contacts.length;i++)
+                        //         {
+                        //             console.log("Data For Inside Save",contact.contacts[i])
+                        //             await this.saveContactLogDetails(contact.contacts[i],req.body.userid);
+                        //         }
+                        //         console.log("data===>",data,)
+                        //         resolve({
+                        //             code: 200,
+                        //             result: data,
+                        //         });
+                        //     })
+                        //     .catch((e) => {
+                        //         reject({
+                        //             code: 500,
+                        //             msg: `${e}`,
+                        //         });
+                        //     });
+
+                        // resolve({
+                        //     code: 200,
+                        //     result: data,
+                        // });
                     })
                     .catch((e) => {
                         reject({

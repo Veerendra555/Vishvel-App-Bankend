@@ -102,6 +102,58 @@ function addUser(req, res) {
 
 
 
+function updateUser(req, res) {
+  // if (!req.file || !req.file.path) {
+  //   throw new Error("Image path missing!!!");
+  // }
+  // req.body.businesslogo = req.file && req.file.path ? req.file.path : null;
+  if(req.body.isImageUpdated)
+  {
+  var imageBuffer = decodeBase64Image(req.body.businesslogo);
+  console.log(imageBuffer);
+  let imagePath = `public/businesslogos/${Date.now() + "-" + req.body.image_name}`
+  
+  fs.writeFile(imagePath, imageBuffer.data, function(err) {
+    req.body.businesslogo = imagePath;
+    UserController.updateUser(req)
+    .then((data) => {
+      if (data.code == 204) {
+        res
+          .status(200)
+          .json(resHandler(data.code, data.result ? data.result : data.msg));
+      } else {
+        res
+          .status(data.code)
+          .json(resHandler(data.code, data.result ? data.result : data.msg));
+      }
+    })
+    .catch((error) => {
+      res.status(error.code).json(resHandler(error.code, error.msg));
+    });
+   });
+  }
+  else{
+    UserController.updateUser(req)
+    .then((data) => {
+      if (data.code == 204) {
+        res
+          .status(200)
+          .json(resHandler(data.code, data.result ? data.result : data.msg));
+      } else {
+        res
+          .status(data.code)
+          .json(resHandler(data.code, data.result ? data.result : data.msg));
+      }
+    })
+    .catch((error) => {
+      res.status(error.code).json(resHandler(error.code, error.msg));
+    });
+  } 
+
+}
+
+
+
 
 function search(req, res) {
   UserController.search(req)
@@ -273,6 +325,7 @@ router.get("/", checkAuth, getUser);
  *                  type: string
 */
 router.post("/", addUser);
+router.put("/", updateUser);
 
 /**
  * @swagger
