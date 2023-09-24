@@ -2,9 +2,13 @@ require('dotenv').config();
 
 const Template = require('../models/template');
 const userDetail = require('../models/userdetail');
-const cheerio = require('cheerio');
+const svgToImg = require("svg-to-img");
+const svg64 = require('svg64');
+// const cheerio = require('cheerio');
+// var xmlserializer = require('xmlserializer');
 const fs = require('fs')
-const templateList=['card1.svg']
+// const { convert } = require('convert-svg-to-png');
+const templateList=['Template1.svg','Template2.svg','Template3.svg']
 class TemplateController {
 	constructor() {}
 
@@ -50,19 +54,39 @@ class TemplateController {
 							msg: 'No template found!!!',
 						});
 					} else {
-						console.log(data,"data==,>")
+						console.log(data,"data==,>",process.env.SERVERPATHLOCAL,process.env.SERVERPATHLIVE)
 						let newTemplateList = [];
 						for(let i=0;i<templateList.length;i++)
 						{
-					    await fs.readFile(`${__dirname}/../public/cards/${templateList[i]}`, 'utf8', (err, svgData) => {
+					    await fs.readFile(`${__dirname}/../public/cards/${templateList[i]}`, 'utf8',async (err, svgData) => {
 						 let finalData =	svgData.replace(/User Address/g, data.address )
 						                    .replace(/UserEmail/g, data.email)
 											.replace(/UserPhone/g, data.mob_no)
 											.replace(/Designation/g, data.occupation)
-											.replace(/UserName/g, data.name);
+											.replace(/UserName/g, data.name)
+											.replace(/Website/g, data.website)
+											.replace(/LogoPath/g, process.env.SERVERPATHLIVE+""+data.businesslogo)
+											.replace(/Company/g, data.company);
 							console.log("New SVG ==>",finalData);
-                             newTemplateList.push(finalData)
-							 if(templateList.length === i+1) 
+							// (async () => {
+								const png = await svgToImg.from(finalData.toString()).toPng({ encoding: "base64" });
+								// console.log("data:image/png;base64," + png);
+								newTemplateList.push("data:image/png;base64," + png);
+							//   })();
+							// fs.readFile(`${__dirname}/../public/cards/${templateList[i]}`, 'utf8',async (err, svgData1) => {
+							// })
+							// const base64fromSVG = svg64(finalData);
+							// console.log(base64fromSVG);
+							// Import `readFileSync` from the file system module
+							// let s = xmlserializer.serializeToString(finalData)
+						// let s = new XMLSerializer().serializeToString(finalData);
+
+							// const png = await convert(finalData);
+							// console.log("New PNG ==>",png);
+                            //  newTemplateList.push(window.btoa(s));
+                            //  newTemplateList.push(finalData);
+							 console.log("newTemplateList===>",newTemplateList)
+							 if(templateList.length === newTemplateList.length) 
 							 {
 								console.log("Respoce Sent")
 								resolve({

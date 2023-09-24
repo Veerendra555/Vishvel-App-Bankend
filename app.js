@@ -76,6 +76,7 @@ app.use('/otp', require('./routers/otpRoute'));
 app.use('/about', require('./routers/aboutRoute'));
 app.use('/favourite', require('./routers/favouriteRoute'));
 app.use('/feed', require('./routers/feedRoute'));
+app.use('/firebase', require('./routers/firbaseRoute'));
 app.use('/product', require('./routers/productRoute'));
 app.use('/deal', require('./routers/dealRouter'));
 app.use('/contact', require('./routers/contactRoute'));
@@ -187,7 +188,7 @@ let server = app.listen(port, console.log(`Listening to port ${port}...`));
 
 const io = socket(server, {
 	cors: {
-	  origin: "http://localhost:3000",
+	  origin: "*",
 	  credentials: true,
 	},
   });
@@ -195,15 +196,20 @@ const io = socket(server, {
 
 global.onlineUsers = new Map();
 io.on("connection", (socket) => {
+	console.log("Io Connection Done===========>",socket)
   global.chatSocket = socket;
   socket.on("add-user", (userId) => {
+	console.log("add-user Done===========>",userId)
     onlineUsers.set(userId, socket.id);
+	console.log("onlineUsers Done===========>",userId)
   });
 
   socket.on("send-msg", (data) => {
     const sendUserSocket = onlineUsers.get(data.to);
+	console.log("sendUserSocket OutSide=========>",sendUserSocket,data)
     if (sendUserSocket) {
-      socket.to(sendUserSocket).emit("msg-recieve", data.msg);
+	  console.log("sendUserSocket Inside=========>",sendUserSocket,data,data.msg)
+      socket.to(sendUserSocket).emit("msg-recieve",data);
     }
   });
 });

@@ -92,7 +92,11 @@ const userSchema = mongoose.Schema({
         type: Boolean,
         default: false
     },
-    blocked: [String]
+    blocked: [String],
+    firebase_token:{
+        type: String,
+        required: false 
+    }
 });
 
 const user = mongoose.model("userdetails", userSchema);

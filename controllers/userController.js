@@ -719,7 +719,57 @@ class UserController {
         });
     }
 
-    search(req) {
+
+    updateUser(req){
+        return new Promise(async(resolve, reject) => {
+            if (!Object.keys(req.body).length) {
+                reject({
+                    code: 400,
+                    msg: "No data passed in request body!!!",
+                });
+            } else if (!req.body.userid ||
+                !req.body.name ||
+                !req.body.email ||
+                !req.body.occupation ||
+                !req.body.company ||
+                !req.body.about_company || 
+                // !req.body.businesslogo ||
+                !req.body.mob_no
+            ) {
+                reject({
+                    code: 400,
+                    msg: "Some of the required fields are missing!!!",
+                });
+            } else if (!req.body.latitude || !req.body.longitude) {
+                reject({
+                    code: 400,
+                    msg: "Location coordinates missing!!!",
+                });
+            } else {
+                let data = req.body;
+                const regUser = await users.findById(data.userid);
+
+                if (!regUser) {
+                    throw new Error("User not found!!!");
+                }
+                UserDetails.updateOne({ _id: req.body._id }, { $set: data }) 
+                .then((details) => {
+                       resolve({
+                           code: 200,
+                           msg: `User Details Updated Successfully..`,
+                       });
+                   })
+                   .catch((err) => {
+                       reject({
+                           code: 500,
+                           msg: `${err}`,
+                       });
+                   });
+            }
+        });
+    }
+
+    searchold(req) {
         return new Promise(async(resolve, reject) => {
             if (!Object.keys(req.body).length) {
                 reject({
@@ -885,6 +935,108 @@ class UserController {
                     );
             }
         });
+    }
+
+    search(req) {
+        return new Promise(async(resolve, reject) => {
+            if (!Object.keys(req.body).length) {
+                reject({
+                    code: 400,
+                    msg: "No data passed in request body!!!",
+                });
+            } 
+            // else if (!req.body.search || !req.body.columns) {
+            //     reject({
+            //         code: 400,
+            //         msg: "Some of the required fields are missing!!!",
+            //     });
+            // } 
+            else {
+                const { search } = req.body;
+                const rgx = (pattern) => new RegExp(`.*${pattern}.*`);
+                const searchRgx = rgx(search);
+
+                // UserDetails.find({$text:{$search:"sample"}})
+                //             .then(async(data) => {
+                //                 if(data.length>0)
+                //                 {
+                //                 console.log("Length==========>",data)
+                //                     resolve({
+                //                         code: 204,
+                //                         msg: "No result found!!!",
+                //                     });
+                //                 }
+                //                 else{
+                //                     reject({
+                //                         code: 500,
+                //                         msg: `${err}`,
+                //                     }) 
+                //                 } 
+                //             })
+                //             .catch((err) =>
+                //                 reject({
+                //                     code: 500,
+                //                     msg: `${err}`,
+                //                 })
+                //             );
+
+                Contact.findOne({
+                        userid: req.user._id,
+                    })
+                    .then((contacts) => {
+                        console.log(contacts)
+                        contacts = contacts ?
+                            contacts :
+                            {
+                                contacts: [],
+                                blocked:[],
+                            };
+
+                        // query.isdeleted = false;
+
+                    // let UserData =  UserDetails.find({
+                    //     phone: { $in: ['9494339486', '9848665925'] }
+                    //   })
+                    //         .then(async(data) => {
+                    //             console.log("UserDetails In Array==========>",data)
+                    //                 resolve({
+                    //                     code: 204,
+                    //                     msg: "No result found!!!",
+                    //                 });
+                    //         })
+                    //         .catch((err) =>
+                    //          {
+                    //             console.log(err);
+                    //             reject({
+                    //                 code: 500,
+                    //                 msg: `${err}`,
+                    //             })
+                    //         }
+                    //         );
+                    UserDetails.find({$and:[{$text:{$search:searchRgx}},{isprivate : false},{ userid: { $ne: req.user._id } }]})
+                    .then(async(data) => {
+                        console.log("Length==========>",data)
+                        if (data.length == 0) {
+                            resolve({
+                                code: 204,
+                                msg: "No result found!!!",
+                            });
+                        } else {
+                            resolve({
+                                code: 200,
+                                result: data,
+                            });
+                        }
+                    })
+                    .catch((err) =>
+                        reject({
+                            code: 500,
+                            msg: `${err}`,
+                        })
+                    );
+            })
+          }
+      })
     }
 
     deleteUser(req) {
