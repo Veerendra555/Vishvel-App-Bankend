@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "body-parser": "^1.19.0",
-    "cheerio": "^1.0.0-rc.12",
     "convert-svg-to-png": "^0.6.4",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
@@ -27,10 +26,8 @@
     "socket.io": "^4.7.2",
     "superagent": "^6.1.0",
     "svg-to-img": "^2.0.9",
-    "svg64": "^2.0.0",
     "swagger-jsdoc": "^4.0.0",
-    "swagger-ui-express": "^4.1.4",
-    "xmlserializer": "^0.6.1"
+    "swagger-ui-express": "^4.1.4"
   },
   "devDependencies": {
     "sequelize-cli": "^5.5.1"
