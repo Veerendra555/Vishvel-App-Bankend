@@ -3,9 +3,6 @@ require('dotenv').config();
 const Template = require('../models/template');
 const userDetail = require('../models/userdetail');
 const svgToImg = require("svg-to-img");
-const svg64 = require('svg64');
-// const cheerio = require('cheerio');
-// var xmlserializer = require('xmlserializer');
 const fs = require('fs')
 // const { convert } = require('convert-svg-to-png');
 const templateList=['Template1.svg','Template2.svg','Template3.svg']
