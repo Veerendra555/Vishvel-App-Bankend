@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const Firebase = require('../models/firebase');
 const UserDetail = require('../models/userdetail');
+const firebaseNotification = require("../middlewares/firebase")
 
 class firbaseController {
 	constructor() {}
@@ -62,7 +63,51 @@ class firbaseController {
 				let data = req.body;
 				const firebase = new Firebase(data);
 				firebase.save()
-					.then((data) => {
+					.then(async(data) => {
+						UserDetail.find({})
+						.then(async(userData) => {
+							if (userData.length == 0) {
+								// resolve({
+								// 	code: 204,
+								// 	msg: 'No feed found!!!',
+								// });
+							} else {
+							for(let i =0;i<userData.length;i++)
+							{
+								if(userData[i].firebase_token != null && userData[i].firebase_token != undefined  )
+								{
+								var message = {
+									data: {
+										"click_action": "FLUTTER_NOTIFICATION_CLICK",
+										"url":"./firebase.json",
+										"sound": "default",
+										"status": "done",
+										// "screen": "screenA",
+										// "orderId": JSON.stringify(orderData)
+										// "description" : `${innerText}`,
+										//     "departmentName" : `${ticketData.deptName}`,
+										//      status : `${ticketData.status.status_name}`,
+										//      creationDate: `${ticketData.creationDate}`
+									},
+									notification: {
+										title: req.body.title,
+										body:  req.body.description            
+									},
+									token : userData[i].firebase_token,
+								};
+					           await firebaseNotification.sendNotification(message);
+							 }
+							}	
+							}
+						})
+						.catch((err) => {
+							reject({
+								code: 500,
+								msg: `${err}`,
+							});
+						});
+					  console.log(message); 
+					 
 						resolve({
 							code: 200,
 							result: data,

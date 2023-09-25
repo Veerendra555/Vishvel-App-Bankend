@@ -84,6 +84,7 @@ app.use('/cart', require('./routers/cartRoute'));
 app.use('/chat', require('./routers/chatRoute'));
 app.use('/order', require('./routers/orderRoute'));
 app.use('/message', require('./routers/userChatRoute'));
+app.use('/tandc', require('./routers/tandcRoute'));
 
 /**
  * @swagger
