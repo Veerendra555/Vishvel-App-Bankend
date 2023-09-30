@@ -84,6 +84,10 @@ const userSchema = mongoose.Schema({
         required: true
     },
 
+    template_no: {
+        type: Number,
+    },
+
     isdeleted: {
         type: Boolean,
         default: false

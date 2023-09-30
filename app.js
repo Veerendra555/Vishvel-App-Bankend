@@ -39,6 +39,9 @@ app.use('/public', express.static('public'));
 app.use(express.static(path.join(__dirname, "public/deals")));
 app.use("/deals_images", express.static("public/deals"));
 
+app.use(express.static(path.join(__dirname, "public/cards")));
+app.use("/template_images", express.static("public/cards"));
+
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
