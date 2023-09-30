@@ -10,7 +10,9 @@ class firbaseController {
 	getFirebaseNotification(req) {
 		return new Promise((resolve, reject) => {
 			let query = {};
-			Firebase.find(query)
+			Firebase.find(query).sort({
+				updatedAt:-1
+			})
 				.then((data) => {
 					if (data.length == 0) {
 						resolve({

@@ -636,6 +636,41 @@ class UserController {
         });
     }
 
+    getUserTemplate(req){
+        return new Promise((resolve, reject) => {
+	  UserDetails.findOne({userid:req.user._id})
+				.then((data) => {
+					if (data.length == 0) {
+						resolve({
+							code: 204,
+							msg: 'User Not found!!!',
+						});
+					} else {
+                        if(data.template_no == null || data.template_no == undefined)
+                        {
+                            resolve({
+                                code: 204,
+                                msg: 'Template Not Selected!!!',
+                            });
+                        }
+                        else{
+                            
+                        }
+						resolve({
+							code: 200,
+							result: data,
+						});
+					}
+				})
+				.catch((err) =>
+					reject({
+						code: 500,
+						msg: `${err}`,
+					})
+				);
+		});
+    }
+
     addUser(req) {
         return new Promise(async(resolve, reject) => {
             if (!Object.keys(req.body).length) {
@@ -752,7 +787,7 @@ class UserController {
                 if (!regUser) {
                     throw new Error("User not found!!!");
                 }
-                UserDetails.updateOne({ _id: req.body._id }, { $set: data }) 
+                UserDetails.updateOne({ userid: data.userid }, { $set: data }) 
                 .then((details) => {
                        resolve({
                            code: 200,

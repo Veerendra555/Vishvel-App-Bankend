@@ -48,6 +48,23 @@ function getUser(req, res) {
     });
 }
 
+function getUserTemplate(req, res) {
+  UserController.getUserTemplate(req)
+    .then((data) => {
+      if (data.code == 204) {
+        res
+          .status(200)
+          .json(resHandler(data.code, data.result ? data.result : data.msg));
+      } else {
+        res
+          .status(data.code)
+          .json(resHandler(data.code, data.result ? data.result : data.msg));
+      }
+    })
+    .catch((error) => {
+      res.status(error.code).json(resHandler(error.code, error.msg));
+    });
+}
 
 function decodeBase64Image(dataString) {
   // var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
@@ -269,6 +286,9 @@ function toggleIsPrivate(req, res) {
  *        description: Internal server error
  */
 router.get("/", checkAuth, getUser);
+router.get("/userTemplate", checkAuth, getUserTemplate);
+
+
 
 /**
  * @swagger
