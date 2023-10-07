@@ -59,6 +59,25 @@ function reportContact(req, res) {
 }
 
 
+function getReportContact(req, res) {
+    ContactController.getReportContact(req)
+        .then((data) => {
+            if (data.code == 204) {
+                res
+                    .status(200)
+                    .json(resHandler(data.code, data.result ? data.result : data.msg));
+            } else {
+                res
+                    .status(data.code)
+                    .json(resHandler(data.code, data.result ? data.result : data.msg));
+            }
+        })
+        .catch((error) => {
+            res.status(error.code).json(resHandler(error.code, error.msg));
+        });
+}
+
+
 function blockContact(req, res) {
     ContactController.blockedContact(req)
         .then((data) => {
@@ -173,6 +192,8 @@ router.get("/", checkAuth, getContact);
 router.post("/", addContact);
 
 router.post("/reportContact", checkAuth, reportContact);
+router.get("/getReportContact", getReportContact);
+
 router.post("/blockContact", checkAuth, blockContact);
 router.post("/unblockContact", checkAuth, unblockContact);
 router.get("/getblockContact", checkAuth, getBlockContact);

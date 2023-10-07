@@ -804,7 +804,7 @@ class UserController {
         });
     }
 
-    searchold(req) {
+    search(req) {
         return new Promise(async(resolve, reject) => {
             if (!Object.keys(req.body).length) {
                 reject({
@@ -820,10 +820,11 @@ class UserController {
                 const { search, columns } = req.body;
                 const rgx = (pattern) => new RegExp(`.*${pattern}.*`);
                 const searchRgx = rgx(search);
-
+                console.log("searchRgx===>",searchRgx)
                 let query = {};
 
                 if (columns.length == 0) {
+                    console.log("IF Block Is Calling...")
                     query = {
                         $or: [
                             { name: { $regex: searchRgx, $options: "i" } },
@@ -845,7 +846,8 @@ class UserController {
                             { address: { $regex: searchRgx, $options: "i" } },
                         ],
                     };
-                } else {
+                } 
+                else {
                     query = {
                         $or: [],
                     };
@@ -911,7 +913,7 @@ class UserController {
                             };
 
                         query.isdeleted = false;
-
+                        console.log("query======>",JSON.stringify(query))
                         UserDetails.find(query)
                             .then(async(data) => {
                                 if (data.length == 0) {
@@ -920,11 +922,13 @@ class UserController {
                                         msg: "No result found!!!",
                                     });
                                 } else {
-                                    // console.log('Data: ', data);
+                                    console.log('Data: ', data);
                                     let blockedByOther = await UserDetails.find({blocked:req.user._id});
+                                    console.log("blockedByOther==>",blockedByOther)
                                     let blockedByme = await UserDetails.findOne({userid:req.user._id});
-                                    let deletebyme= blockedByme.blocked
-                                    let toDel = blockedByOther.map(x=>x.userid);
+                                    console.log("blockedByme==>",blockedByme)
+                                    let deletebyme= blockedByme && blockedByme.blocked
+                                    let toDel = blockedByOther && blockedByOther.map(x=>x.userid);
                                     toDel= toDel.concat(deletebyme)
                                     const toDelete = new Set(toDel);
                                     // console.log("userController",blockedByOther,toDelete,deletebyme,blockedByme)
@@ -972,7 +976,7 @@ class UserController {
         });
     }
 
-    search(req) {
+    searchold(req) {
         return new Promise(async(resolve, reject) => {
             if (!Object.keys(req.body).length) {
                 reject({
@@ -1072,6 +1076,60 @@ class UserController {
             })
           }
       })
+    }
+
+    advSearch(req){
+        return new Promise((resolve, reject) => {
+            const { search } = req.body;
+            const rgx = (pattern) => new RegExp(`.*${pattern}.*`);
+            const searchRgx = rgx(search);
+            console.log("searchRgx===>",searchRgx)
+            let  query = {
+                $or: [
+                    { name: { $regex: searchRgx, $options: "i" } },
+                    // { email: { $regex: searchRgx, $options: "i" } },
+                    // {
+                    //     occupation: {
+                    //         $regex: searchRgx,
+                    //         $options: "i",
+                    //     },
+                    // },
+                    { company: { $regex: searchRgx, $options: "i" } },
+                    // {
+                    //     designation: {
+                    //         $regex: searchRgx,
+                    //         $options: "i",
+                    //     },
+                    // },
+                    // { website: { $regex: searchRgx, $options: "i" } },
+                    // { address: { $regex: searchRgx, $options: "i" } },
+                ],
+            };
+            console.log("query======>",JSON.stringify(query))
+	    UserDetails.find({$and:[query,{isprivate : false},{ userid: { $ne: req.user._id } }]})
+				.then((data) => {
+                    console.log("Full Data",data)
+					if (data.length == 0) {
+						resolve({
+							code: 204,
+							msg: 'User Not found!!!',
+						});
+					} else {
+						resolve({
+							code: 200,
+							result: data,
+						});
+					}
+				})
+				.catch((err) =>{
+                    console.log(err)
+					reject({
+						code: 500,
+						msg: `${err}`,
+					})
+                } 
+				);
+		});
     }
 
     deleteUser(req) {
@@ -1218,6 +1276,44 @@ class UserController {
             }
         });
     }
+
+    getUserForAdmin(req) {
+		return new Promise(async(resolve, reject) => {
+			let query = {};
+            const totalDocuments = await UserDetails.countDocuments();
+			UserDetails.find(query)
+            .skip((req.query.pageNumber - 1) * req.query.itemsPerPage )
+            .limit(req.query.itemsPerPage)
+            .sort({
+				updatedAt:-1
+			})
+				.then((data) => {
+					if (data.length == 0) {
+						resolve({
+							code: 204,
+							msg: 'No feed found!!!',
+						});
+					} else {
+						resolve({
+							code: 200,
+							result: {
+                                data,
+                                total : totalDocuments
+                            },
+						});
+					}
+				})
+				.catch((err) => {
+					reject({
+						code: 500,
+						msg: `${err}`,
+					});
+				});
+		});
+	}
+
+    
+
 }
 
 module.exports = new UserController();

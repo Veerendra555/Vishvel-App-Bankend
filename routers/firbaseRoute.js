@@ -1,9 +1,23 @@
 const router = require('express').Router();
 const checkAuth = require('../middlewares/auth');
-
+const multer = require("multer");
 let resHandler = require('../handlers/responseHandler');
 const firbaseController = require('../controllers/firbaseController');
 
+let Storage = multer.diskStorage({
+	destination: (req, file, cb) => {
+	  cb(null, "public/notification");
+	},
+	filename: (req, file, cb) => {
+	  cb(null, Date.now() + "-" + file.originalname);
+	},
+  });
+
+  let upload = multer({
+	storage: Storage,
+	// fileFilter,
+  });
+  
 
 function getFirebaseNotification(req, res) {
 	firbaseController.getFirebaseNotification(req)
@@ -24,6 +38,10 @@ function getFirebaseNotification(req, res) {
 }
 
 function addFirebaseNotification(req, res) {
+	if (!req.file || !req.file.path) {
+		res.status(400).json(resHandler(400, 'Image path missing!!!'));
+	}
+	req.body.image = req.file.path;
 	firbaseController.addFirebaseNotification(req)
 		.then((data) => {
 			if (data.code == 204) {
@@ -127,6 +145,7 @@ router.get('/', checkAuth, getFirebaseNotification);
 router.post(
 	'/',
 	checkAuth,
+	upload.single('image'),
 	addFirebaseNotification
 );
 

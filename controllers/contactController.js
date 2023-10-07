@@ -7,6 +7,7 @@ const contact = require('../models/contacts');
 const Contact = require('../models/contacts');
 const UserDetails = require('../models/userdetail');
 const contactLogType = require('../models/contactlogtype');
+const reportContact = require('../models/reportcontact');
 const User = require('../models/user');
 var nodemailer = require('nodemailer');
 
@@ -380,6 +381,14 @@ class ContactController {
                             break;
                            }
                         }
+                        for(let j=0;j<data.blocked.length;j++)
+                        {
+                           if(req.body.contacts[i] == data.blocked[j])
+                           {
+                            pushNo = false;
+                            break;
+                           }
+                        }
                         if(pushNo)
                         {
                          console.log("Array Push...",req.body.contacts[i])
@@ -631,6 +640,7 @@ async saveContactLogDetails(contanctNo,userid)
 
     getBlockedList(req) {
         return new Promise((resolve, reject) => {
+            console.log("getBlockedList==?getBlockedList",req.user._id)
             // let query = req.query.userid ? { userid: req.query.userid } : {};
             req.query.userid = req.user._id;
             if (!req.query.userid) {
@@ -696,37 +706,76 @@ async saveContactLogDetails(contanctNo,userid)
                     userid: req.query.userid,
                 })
                     .then((contacts) => {
-                        contacts = contacts ?
-                            contacts.blocked.map(x=>ObjectId(x)) :[]
-                        UserDetails.find({
-                            isdeleted: false,
-                            userid:{$in:contacts}
-                        })
-                            .then(async (users) => {
-                                // console.log(users)
-                                // let blocked = {
-                                //     contacts: contacts.blocked,
-                                // };
-                                // const results = await this.getResult(blocked, users, req);
-                                // console.log('results', results);
+                        console.log("contacts==>",contacts)
+                    UserDetails.find({ mob_no: { $in: contacts.blocked }}, { _id: 1 })
+                    .then(async (users) => {
+                        let blockedListUsers,tempList = [];
+                        for(let i=0;i<users.length;i++)
+                        {
+                        tempList.push(users[i]._id.toString())
+                        }
+                        blockedListUsers = tempList.map(id => new ObjectId(id));
+                        console.log("blockedListUsers==>",blockedListUsers)
+                         UserDetails.find({$and:[{isdeleted: false},{ _id : { $in: blockedListUsers } }]},{ _id: 1,userid: 1,name:1,company:1,mob_no:1,businesslogo:1 }).lean().sort({createdAt:-1})
+                         .then((data) => {
+                             if (data.length == 0) {
+                                 resolve({
+                                     code: 204,
+                                     msg: 'No details found!!!',
+                                 });
+                             } else {
+                             // userDetailsData = [...data];	
+                             console.log(data);			
+                                 resolve({
+                                     code: 200,
+                                     result: data,
+                                 });
+                             }
+                         })
+                         .catch((err) =>
+                             reject({
+                                 code: 500,
+                                 msg: `${err}`,
+                             })
+                         );
+                        // UserDetails.find({$and:[{isdeleted: false},{userid:{$in:contacts}}]
+                        // })
+                        //     .then(async (users) => {
+                        //         console.log(users)
+                        //         // let blocked = {
+                        //         //     contacts: contacts.blocked,
+                        //         // };
+                        //         // const results = await this.getResult(blocked, users, req);
+                        //         // console.log('results', results);
 
-                                resolve({
-                                    code: 200,
-                                    result: {
-                                        blocked:users,
-                                        // myContacts: results.myContacts.sort(
-                                        //     (a, b) => a.distance - b.distance
-                                        // ),
-                                        // others: results.others,
-                                    },
-                                });
-                            })
-                            .catch((err) =>
-                                reject({
-                                    code: 500,
-                                    msg: `${err}`,
-                                })
-                            );
+                        //         resolve({
+                        //             code: 200,
+                        //             result: {
+                        //                 blocked:users,
+                        //                 // myContacts: results.myContacts.sort(
+                        //                 //     (a, b) => a.distance - b.distance
+                        //                 // ),
+                        //                 // others: results.others,
+                        //             },
+                        //         });
+                        //     })
+                        //     .catch((err) =>
+                        //         reject({
+                        //             code: 500,
+                        //             msg: `${err}`,
+                        //         })
+                        //     );
+
+                    })
+                    .catch((err) =>
+                        reject({
+                            code: 500,
+                            msg: `${err}`,
+                        })
+                    );
+                        // contacts = contacts ?
+                        //     contacts.blocked.map(x=>ObjectId(x)) :[];
+                        //     console.log("contacts=:List",contacts)
                     })
                     .catch((err) =>
                         reject({
@@ -741,68 +790,6 @@ async saveContactLogDetails(contanctNo,userid)
     reportContact(req) {
         return new Promise(async(resolve, reject) => {
             console.log("req.body",req.user)
-            // let a = [req.body.userId,req.user._id]
-            // UserDetails.find({
-            //     userid: a,
-            // })
-            //     .then((x) => {
-            //         console.log(x, req.body.userId,UserDetails);
-
-            //         var transporter = nodemailer.createTransport({
-            //             service: 'gmail',
-            //             auth: {
-            //                 user: process.env.mailUser,
-            //                 pass: process.env.mailpassword,
-            //             },
-            //         });
-            //         // console.log(x);
-            //         // let userReported = x.map((y) => {
-            //         //     if (y.userid.toString() == req.body.userId) {
-            //         //         return y;
-            //         //     }
-            //         // });
-            //         // let currentUser = x.map((z) => {
-            //         //     if (z.userid.toString() == req.user._id) {
-            //         //         return z;
-            //         //     }
-            //         // });
-            //         console.log("userReported===>",userReported)
-            //         console.log("currentUser===>",currentUser)
-            //         var mailOptions = {
-            //             from: process.env.mailUser,
-            //             to: 'customersupport@vishvel.in',
-            //             subject: 'Report user',
-            //             html: `<h4 style="text-align: left">Vishvel - Reported Contact</h4>
-            //             <br>            
-            //                 Dear Admin ,<br><br>
-            //              &nbsp;&nbsp;&nbsp;&nbsp;${currentUser[0].name} has reported ${userReported[0].name},please take appropriate action.<br>
-            //              Reason:${req.body.reason}
-            //              <br><br>
-            //             <br>
-            //             Thanks,<br>
-            //             vishvel customer support Desk<br>
-            //             mailto:customersuppor@vishvel.in`,
-            //         };
-
-            //         transporter.sendMail(mailOptions, function (error, info) {
-            //             if (error) {
-            //                 console.log(error);
-            //                 reject({
-            //                     code: 500,
-            //                     msg: `${error}`,
-            //                 });
-            //             } else {
-            //                 console.log('Email sent: ' + info.response);
-            //                 resolve({
-            //                     code: 204,
-            //                     msg: 'Email sent: ' + info.response,
-            //                 });
-            //             }
-            //         });
-            //     })
-            //     .catch((err) => {
-            //         reject(`${err}`);
-            //     });
               await UserDetails.findOne({
                     userid: ObjectId(req.body.userid),
                 }) .then(async(data) => {
@@ -810,61 +797,67 @@ async saveContactLogDetails(contanctNo,userid)
               await  UserDetails.findOne({
                         userid:  ObjectId(req.user._id),
                     }) .then((details) => {
-                        console.log("Details Dtaa",details)
-                        var transporter = nodemailer.createTransport({
-                            service: 'gmail',
-                            auth: {
-                                user: process.env.mailUser,
-                                pass: process.env.mailpassword,
-                            },
+                       
+                        const report = new reportContact({
+                            reportedBy :details._id,
+                            reported : data._id,
+                            reason : req.body.reason,
                         });
-                        // console.log(x);
-                        // let userReported = x.map((y) => {
-                        //     if (y.userid.toString() == req.body.userId) {
-                        //         return y;
-                        //     }
-                        // });
-                        // let currentUser = x.map((z) => {
-                        //     if (z.userid.toString() == req.user._id) {
-                        //         return z;
-                        //     }
-                        // });
-                        var mailOptions = {
-                            from: process.env.mailUser,
-                            to: 'customersupport@vishvel.in',
-                            subject: 'Report user',
-                            html: `<h4 style="text-align: left">Vishvel - Reported Contact</h4>
-                            <br>            
-                                Dear Admin ,<br><br>
-                             &nbsp;&nbsp;&nbsp;&nbsp;${details.name} has reported ${data.name},please take appropriate action.<br>
-                             Reason:${req.body.reason}
-                             <br><br>
-                            <br>
-                            Thanks,<br>
-                            vishvel customer support Desk<br>
-                            mailto:customersuppor@vishvel.in`,
-                        };
-    
-                        transporter.sendMail(mailOptions, function (error, info) {
-                            if (error) {
-                                console.log(error);
-                                reject({
-                                    code: 500,
-                                    msg: `${error}`,
+                        console.log(report,"report")
+                        report
+                            .save()
+                            .then((savedata) => {
+                                console.log("Details Dtaa",details)
+                                var transporter = nodemailer.createTransport({
+                                    service: 'gmail',
+                                    auth: {
+                                        user: process.env.mailUser,
+                                        pass: process.env.mailpassword,
+                                    },
                                 });
-                            } else {
-                                console.log('Email sent: ' + info.response);
-                                resolve({
-                                    code: 204,
-                                    msg: 'Email sent: ' + info.response,
+                                var mailOptions = {
+                                    from: process.env.mailUser,
+                                    to: 'customersupport@vishvel.in',
+                                    subject: 'Report user',
+                                    html: `<h4 style="text-align: left">Vishvel - Reported Contact</h4>
+                                    <br>            
+                                        Dear Admin ,<br><br>
+                                     &nbsp;&nbsp;&nbsp;&nbsp;${details.name} has reported ${data.name},please take appropriate action.<br>
+                                     Reason:${req.body.reason}
+                                     <br><br>
+                                    <br>
+                                    Thanks,<br>
+                                    vishvel customer support Desk<br>
+                                    mailto:customersuppor@vishvel.in`,
+                                };
+            
+                                transporter.sendMail(mailOptions, function (error, info) {
+                                    if (error) {
+                                        console.log(error);
+                                        reject({
+                                            code: 500,
+                                            msg: `${error}`,
+                                        });
+                                    } else {
+                                        console.log('Email sent: ' + info.response);
+                                        resolve({
+                                            code: 204,
+                                            msg: 'Email sent: ' + info.response,
+                                        });
+                                    }
                                 });
-                            }
-                        });
-                        // resolve({
-                        //     code: 200,
-                        //     result: data,
-                        // });
-                    }) .catch((e) => {
+                            })
+                            .catch((e) => {
+                                console.log("ContackLog Not save",data,e)
+                                return;
+                                // reject({
+                                //     code: 500,
+                                //     msg: `${e}`,
+                                // });
+                            });                    
+                    
+                    })                     
+                    .catch((e) => {
                         reject({
                             code: 500,
                             msg: `${e}`,
@@ -880,8 +873,41 @@ async saveContactLogDetails(contanctNo,userid)
       })
     }
 
+    //Get Report List
+    getReportContact(req) {
+		return new Promise((resolve, reject) => {
+            reportContact.find({}).populate('reportedBy','name email company mob_no userid').populate('reported','name email company mob_no userid')
+            .sort({
+				updatedAt:-1
+			})	
+            .then((userdata) => {
+                    console.log("User Data...",userdata)
+                    if (userdata.length == 0) {
+                        resolve({
+                            code: 204,
+                            msg: 'No Rating Found found!!!',
+                        });
+                    } else {
+                        resolve({
+                            code: 200,
+                            result: userdata,
+                        });
+                    }
+                 })
+                 .catch((err) => {
+                    reject({
+                        code: 500,
+                        msg: `${err}`,
+                    });
+                });
+		});
+	}
+
+
+
     unblockContact(req) {
         return new Promise((resolve, reject) => {
+            console.log("unblockContact 1")
             if (!Object.keys(req.body).length) {
                 reject({
                     code: 400,
@@ -893,6 +919,7 @@ async saveContactLogDetails(contanctNo,userid)
                     msg: 'User id missing!!!',
                 });
             } else if (req.body._id) {
+                console.log("unblockContact 2")
                 req.body._id = ObjectId(req.body._id);
                 UserDetails.updateOne({
                     _id: req.body._id,
@@ -912,6 +939,7 @@ async saveContactLogDetails(contanctNo,userid)
                         resolve({
                             code: 200,
                             result: data,
+                            msg: `User Unblocked Successfully`,
                         });
                     })
                     .catch((e) => {
@@ -921,6 +949,7 @@ async saveContactLogDetails(contanctNo,userid)
                         });
                     });
             } else {
+                console.log("unblockContact 3")
                 req.body.userid = ObjectId(req.body.userid);
                 UserDetails.updateOne({
                     userid: req.body.userid,
@@ -930,6 +959,7 @@ async saveContactLogDetails(contanctNo,userid)
                     },
                 })
                     .then((data) => {
+                        console.log("unblockContact 4")
                         Contact.updateOne({
                             userid: ObjectId(req.body.userid),
                         }, {
@@ -939,7 +969,8 @@ async saveContactLogDetails(contanctNo,userid)
                         });
                         resolve({
                             code: 200,
-                            result: data,
+                            result: {},
+                            msg: `User Unblocked Successfully`,
                         });
                     })
                     .catch((e) => {
@@ -951,6 +982,8 @@ async saveContactLogDetails(contanctNo,userid)
             }
         });
     }
+
+
 }
 
 module.exports = new ContactController();

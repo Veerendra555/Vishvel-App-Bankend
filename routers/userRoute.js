@@ -48,6 +48,25 @@ function getUser(req, res) {
     });
 }
 
+
+function getUserForAdmin(req, res) {
+  UserController.getUserForAdmin(req)
+    .then((data) => {
+      if (data.code == 204) {
+        res
+          .status(200)
+          .json(resHandler(data.code, data.result ? data.result : data.msg));
+      } else {
+        res
+          .status(data.code)
+          .json(resHandler(data.code, data.result ? data.result : data.msg));
+      }
+    })
+    .catch((error) => {
+      res.status(error.code).json(resHandler(error.code, error.msg));
+    });
+}
+
 function getUserTemplate(req, res) {
   UserController.getUserTemplate(req)
     .then((data) => {
@@ -94,9 +113,9 @@ function addUser(req, res) {
   // req.body.businesslogo = req.file && req.file.path ? req.file.path : null;
   var imageBuffer = decodeBase64Image(req.body.businesslogo);
   console.log(imageBuffer);
-  let imagePath = `public/businesslogos/${Date.now() + "-" + req.body.image_name}`
+  let imagePath = `${Date.now() + "-" + req.body.image_name}`
   
-  fs.writeFile(imagePath, imageBuffer.data, function(err) {
+  fs.writeFile('public/businesslogos/'+imagePath, imageBuffer.data, function(err) {
     req.body.businesslogo = imagePath;
     UserController.addUser(req)
     .then((data) => {
@@ -173,7 +192,7 @@ function updateUser(req, res) {
 
 
 function search(req, res) {
-  UserController.search(req)
+  UserController.advSearch(req)
     .then((data) => {
       if (data.code == 204) {
         res
@@ -286,6 +305,8 @@ function toggleIsPrivate(req, res) {
  *        description: Internal server error
  */
 router.get("/", checkAuth, getUser);
+router.get("/adminUserList", getUserForAdmin);
+
 router.get("/userTemplate", checkAuth, getUserTemplate);
 
 

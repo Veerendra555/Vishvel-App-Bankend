@@ -53,65 +53,64 @@ class TemplateController {
 					} else {
 						console.log(data,"data==,>",process.env.SERVERPATHLOCAL,process.env.SERVERPATHLIVE)
 						let newTemplateList = [];
-						for(let i=0;i<templateList.length;i++)
-						{
-					    await fs.readFile(`${__dirname}/../public/cards/${templateList[i]}`, 'utf8',async (err, svgData) => {
-						 let finalData =	svgData.replace(/User Address/g, data.address )
-						                    .replace(/UserEmail/g, data.email)
-											.replace(/UserPhone/g, data.mob_no)
-											.replace(/Designation/g, data.occupation)
-											.replace(/UserName/g, data.name)
-											.replace(/Website/g, data.website)
-											.replace(/LogoPath/g, process.env.SERVERPATHLIVE+""+data.businesslogo)
-											.replace(/Company/g, data.company);
-							console.log("New SVG ==>",finalData);
-							// (async () => {
-								const png = await svgToImg.from(finalData.toString()).toPng({ encoding: "base64" });
-								// console.log("data:image/png;base64," + png);
-								newTemplateList.push("data:image/png;base64," + png);
-							//   })();
-							// fs.readFile(`${__dirname}/../public/cards/${templateList[i]}`, 'utf8',async (err, svgData1) => {
-							// })
-							// const base64fromSVG = svg64(finalData);
-							// console.log(base64fromSVG);
-							// Import `readFileSync` from the file system module
-							// let s = xmlserializer.serializeToString(finalData)
-						// let s = new XMLSerializer().serializeToString(finalData);
-
-							// const png = await convert(finalData);
-							// console.log("New PNG ==>",png);
-                            //  newTemplateList.push(window.btoa(s));
-                            //  newTemplateList.push(finalData);
-							 console.log("newTemplateList===>",newTemplateList)
-							 if(templateList.length === newTemplateList.length) 
-							 {
-								console.log("Respoce Sent")
-								resolve({
-									code: 200,
-									result: newTemplateList,
-								});
-							 }
-							if (err) {
-							  console.error(err);
-							//   return res.status(500).send('Error reading SVG file');
-													reject({
+						
+						var dir = `${__dirname}/../public/cards/${req.params.userid}`;
+                         if (!fs.existsSync(dir)){
+                            await fs.mkdirSync(dir, { recursive: true });
+							for(let i=0;i<templateList.length;i++)
+							{
+							try {
+								await fs.readFile(`${__dirname}/../public/cards/${templateList[i]}`, 'utf8',async (err, svgData) => {
+									let finalData =	svgData.replace(/User Address/g, data.address )
+													   .replace(/UserEmail/g, data.email)
+													   .replace(/UserPhone/g, data.mob_no)
+													   .replace(/Designation/g, data.occupation)
+													   .replace(/UserName/g, data.name)
+													   .replace(/Website/g, data.website)
+													   .replace(/LogoPath/g, `${process.env.SERVERPATHLOCAL}businesslogo/${data.businesslogo}`)
+													   .replace(/Company/g, data.company);
+													   
+									   console.log("New SVG ==>",finalData);
+									   await  fs.writeFileSync(`${__dirname}/../public/cards/${req.params.userid}/${templateList[i]}`, finalData);
+									   newTemplateList.push(`${req.params.userid}/${templateList[i]}`);
+									   if(templateList.length === newTemplateList.length) 
+									   {
+										  console.log("Respoce Sent")
+										  resolve({
+											  code: 200,
+											  result: newTemplateList,
+										  });
+									   }
+									   if (err) {
+										 console.error(err);
+									   //   return res.status(500).send('Error reading SVG file');
+															   reject({
+												   code: 204,
+												   msg: 'No template found!!!',
+											   });
+									   }
+								   });
+									// file written successfully
+								  } catch (err) {
+									console.error(err);
+									reject({
 										code: 204,
 										msg: 'No template found!!!',
 									});
+								  }
+							} 
+                           }
+                         else{
+							let newTemplateList = [];
+							for(let i=0;i<templateList.length;i++)
+							{
+								newTemplateList.push(`${req.params.userid}/${templateList[i]}`);
 							}
-							// Modify the SVG data (example: change the color of all <circle> elements)
-							// const $ = cheerio.load(svgData);
-							// newTemplateList.push(svg)
-							// $('circle').attr('fill', 'red'); // Change circle fill color to red
-						
-							// Send the modified SVG data to the client
-							// const modifiedSVG = $.xml();
-							// console.log("New Svg==>",modifiedSVG);
-
-							// res.set('Content-Type', 'image/svg+xml');
-							// res.send(modifiedSVG);
-						  });
-						} 
+                 		resolve({
+							code: 200,
+							result: newTemplateList,
+						});
+						 }
 						// resolve({
 						// 	code: 200,
 						// 	result: data,

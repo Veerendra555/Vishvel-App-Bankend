@@ -39,6 +39,9 @@ app.use('/public', express.static('public'));
 app.use(express.static(path.join(__dirname, "public/deals")));
 app.use("/deals_images", express.static("public/deals"));
 
+app.use(express.static(path.join(__dirname, "public/businesslogos")));
+app.use("/businesslogo", express.static("public/businesslogos"));
+
 app.use(express.static(path.join(__dirname, "public/cards")));
 app.use("/template_images", express.static("public/cards"));
 
@@ -83,6 +86,7 @@ app.use('/firebase', require('./routers/firbaseRoute'));
 app.use('/product', require('./routers/productRoute'));
 app.use('/deal', require('./routers/dealRouter'));
 app.use('/contact', require('./routers/contactRoute'));
+app.use('/rating', require('./routers/ratingRoute'));
 app.use('/cart', require('./routers/cartRoute'));
 app.use('/chat', require('./routers/chatRoute'));
 app.use('/order', require('./routers/orderRoute'));

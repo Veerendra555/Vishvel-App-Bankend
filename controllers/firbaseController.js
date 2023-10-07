@@ -97,7 +97,23 @@ class firbaseController {
 									},
 									token : userData[i].firebase_token,
 								};
-					           await firebaseNotification.sendNotification(message);
+								return new Promise(async (resolve, reject) => {
+					           let output = await firebaseNotification.sendNotification(message);
+							   console.log("output",output)
+							   if(output)
+							   {
+								resolve({
+									code: 200,
+									msg: 'Push Notification Added Successfully',
+								});
+							   }
+							   else{
+								reject({
+									code: 500,
+									msg: `Error In Push Notification`,
+								});
+							   }
+							  })
 							 }
 							}	
 							}

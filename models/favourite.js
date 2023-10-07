@@ -1,13 +1,14 @@
 const mongoose = require("../db/db");
-var ObjectId = mongoose.Schema.Types.ObjectId;
-
+var Schema = mongoose.Schema;
 const favouriteSchema = mongoose.Schema({
   userid: {
-    type: ObjectId,
+    type : Schema.Types.ObjectId,
+    ref : "users" ,
     required: true,
   },
   favourite: {
-    type: ObjectId,
+    type : Schema.Types.ObjectId,
+    ref : "users" ,
     required: true,
   }
 });

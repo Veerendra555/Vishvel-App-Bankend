@@ -150,10 +150,13 @@ class ReviewController {
                                 rating = user.rating.rating;
                                 total = user.rating.total;
                             }
+							console.log("rating" ,rating,"+ req.body.rating;", req.body.rating)
                             
-                            let sum = rating * total;
+                            rating = rating + Number(req.body.rating);
+							console.log("New Rating==>",rating)
+                            // let sum = rating * total;
                             total = total + 1;
-                            let newRating = (sum + req.body.rating)/total;
+                            // let newRating = (sum + req.body.rating)/total;
 
 							await UserDetail.findOneAndUpdate(
 								{
@@ -161,7 +164,7 @@ class ReviewController {
 								},
 								{
 									rating: {
-                                        rating: newRating,
+                                        rating,
                                         total
                                     },
 								}
