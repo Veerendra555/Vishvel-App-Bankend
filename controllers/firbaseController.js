@@ -97,23 +97,34 @@ class firbaseController {
 									},
 									token : userData[i].firebase_token,
 								};
-								return new Promise(async (resolve, reject) => {
-					           let output = await firebaseNotification.sendNotification(message);
-							   console.log("output",output)
-							   if(output)
-							   {
+								await firebaseNotification.sendNotification(message).then(data=>{
+                                console.log("Firebase Then Block Calling")
 								resolve({
 									code: 200,
-									msg: 'Push Notification Added Successfully',
-								});
-							   }
-							   else{
-								reject({
-									code: 500,
-									msg: `Error In Push Notification`,
-								});
-							   }
-							  })
+							       result: [],
+							})
+								}).catch(error=>{
+									console.log("Firebase error Block Calling")
+									reject({
+										code: 500,
+										msg: `${err}`,
+									});
+								
+							 });
+								// return new Promise(async (resolve, reject) => {
+					          
+							//    console.log("output",output)
+							//    if(output)
+							//    {
+								
+							//    }
+							//    else{
+							// 	reject({
+							// 		code: 500,
+							// 		msg: `Error In Push Notification`,
+							// 	});
+							//    }
+							//   })
 							 }
 							}	
 							}
@@ -124,8 +135,6 @@ class firbaseController {
 								msg: `${err}`,
 							});
 						});
-					  console.log(message); 
-					 
 						resolve({
 							code: 200,
 							result: data,

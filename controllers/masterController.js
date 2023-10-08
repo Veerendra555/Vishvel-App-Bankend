@@ -1,19 +1,21 @@
 require('dotenv').config();
 
-const Tandc = require('../models/tandc');
+const masterData = require('../models/masterData');
 
-class tandcController {
+class masterDataController {
 	constructor() {}
 
-	getTandC(req) {
+	getMasterData(req) {
 		return new Promise((resolve, reject) => {
-			let query = {};
-			Tandc.findOne(query)
+			let query = {type: req.query.type};
+			console.log("query==>",query)
+			masterData.findOne(query)
 				.then((data) => {
-					if (data.length == 0) {
+					if (!data) {
 						resolve({
 							code: 204,
-							msg: 'No feed found!!!',
+							msg: 'No Data found!!!',
+							result:{}
 						});
 					} else {
 						resolve({
@@ -31,7 +33,7 @@ class tandcController {
 		});
 	}
 
-	addTandC(req) {
+	addMasterData(req) {
 		return new Promise(async (resolve, reject) => {
 			console.log("req=====>",req)
 			console.log("reqbody=====>",req.body)
@@ -48,7 +50,7 @@ class tandcController {
 				});
 			}
 			else if (
-				!req.body.description
+				!req.body.description && !req.body.type
 			) {
 				reject({
 					code: 400,
@@ -58,10 +60,10 @@ class tandcController {
 			else {
 				if(!!req.body._id)
 				{
-					Tandc.updateOne({ _id: req.body._id }, { $set: {description : req.body.description }}).then(async(data) => {					 
+					masterData.updateOne({$and:[{ _id: req.body._id },{type :req.body.type }]}, { $set: {description : req.body.description }}).then(async(data) => {					 
 						resolve({
 							code: 200,
-							msg: "Terms And Conditions Details Updated Succesfully"
+							msg: `${req.body.type} Details Updated Succesfully`
 						});
 					})
 					.catch((err) => {
@@ -72,11 +74,12 @@ class tandcController {
 					});
 				}
 				else{
-				const TandCDeatails = new Tandc({
+				const masterDataDeatails = new masterData({
 					 userid: req.user._id,
-					 description : req.body.description 
+					 description : req.body.description,
+					 type : req.body.type 
 				});
-				TandCDeatails.save()
+				masterDataDeatails.save()
 					.then(async(data) => {					 
 						resolve({
 							code: 200,
@@ -95,4 +98,4 @@ class tandcController {
 	}
 }
 
-module.exports = new tandcController();
+module.exports = new masterDataController();

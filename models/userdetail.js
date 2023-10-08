@@ -84,8 +84,9 @@ const userSchema = mongoose.Schema({
         required: true
     },
 
-    template_no: {
-        type: Number,
+    template_position: {
+        type : Number,
+        default : 0
     },
 
     isdeleted: {
@@ -96,6 +97,13 @@ const userSchema = mongoose.Schema({
         type: Boolean,
         default: false
     },
+    fav_status: {
+        type : Boolean
+      },
+      template_position: {
+        type : Number,
+        default : true
+      },
     blocked: [String],
     firebase_token:{
         type: String,

@@ -1,25 +1,30 @@
 const mongoose = require("../db/db");
 var ObjectId = mongoose.Schema.Types.ObjectId;
+var Schema = mongoose.Schema;
 
 const templateSchema = mongoose.Schema({
-  icon_color: {
-    type: String,
-    required: true,
-  },
-  color: {
-    type: String,
-    required: true,
+  userid: {
+    type : Schema.Types.ObjectId,
+         ref : "user"  
   },
   template: {
     type: String,
     required: true,
   },
-  template_type: {
-    type: String,
-    required: true,
+  position: {
+    type: Number,
+  },
+  isActive:{
+    type: Boolean,
+    default : true,
   }
+},
+{
+  timestamps: true
 });
 
 const template = mongoose.model("templates", templateSchema);
+
+
 
 module.exports = template;

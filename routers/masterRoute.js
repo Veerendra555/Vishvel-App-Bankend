@@ -2,11 +2,11 @@ const router = require('express').Router();
 const checkAuth = require('../middlewares/auth');
 
 let resHandler = require('../handlers/responseHandler');
-const tandcController = require('../controllers/tandcController');
+const tandcController = require('../controllers/masterController');
 
 
-function getTandC(req, res) {
-	tandcController.getTandC(req)
+function getMasterData(req, res) {
+	tandcController.getMasterData(req)
 		.then((data) => {
 			if (data.code == 204) {
 				res.status(200).json(
@@ -23,8 +23,8 @@ function getTandC(req, res) {
 		});
 }
 
-function addTandC(req, res) {
-	tandcController.addTandC(req)
+function addMasterData(req, res) {
+	tandcController.addMasterData(req)
 		.then((data) => {
 			if (data.code == 204) {
 				res.status(200).json(
@@ -95,7 +95,7 @@ function deleteFeed(req, res) {
  *      '500':
  *        description: Internal server error
  */
-router.get('/', checkAuth, getTandC);
+router.get('/', checkAuth, getMasterData);
 
 /**
  * @swagger
@@ -127,7 +127,7 @@ router.get('/', checkAuth, getTandC);
 router.post(
 	'/',
 	checkAuth,
-	addTandC
+	addMasterData
 );
 
 /**

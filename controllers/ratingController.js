@@ -1,5 +1,6 @@
 require('dotenv').config();
 const ratingModel = require('../models/rating');
+const ContactLogType = require('../models/contactlogtype');
 
 const userDetails = require("../models/userdetail")
 const user = require("../models/user");
@@ -80,34 +81,72 @@ class RatingController {
 			ratingModel.findOne({$and:[{from: req.user._id},{to : req.query.to}]})
 				.then(async(data) => {
 					console.log("Data...",data)
-		ratingModel.find({to : req.query.to})			
-				.then((userdata) => {
+					if (!data) {
+						resolve({
+							code: 204,
+							msg: 'No Rating Found!!!',
+						});
+					}
+		   ratingModel.find({to : req.query.to})			
+				.then(async(userdata) => {
 						console.log("User Data...",userdata)
-						if (data.length == 0) {
+						if (userdata.length == 0) {
 							resolve({
 								code: 204,
-								msg: 'No Rating Found found!!!',
+								msg: 'No Rating Found!!!',
 							});
 						} else {
-					    let finalData = {
-							"_id": data._id,
-							"from": data.from,
-							"to": data.to,
-							"rating": data.rating,
-							"isActive": data.isActive,
-							"createdAt": data.createdAt,
-							"updatedAt": data.updatedAt,
-							 totalRating : 0,
-							 totalCount : userdata.length
-						}	
-					   for(let i=0;i<userdata.length;i++)
-					   {
-						finalData.totalRating += userdata[i].rating;
-					   }		
-							resolve({
-								code: 200,
-								result: finalData,
-							});
+							let contactLogUser = await userDetails.findOne({userid : req.query.to});
+							console.log("req.user._id",req.user._id,"req.query.to",req.query.to , contactLogUser)
+						ContactLogType.findOne({$and:[{from: req.user._id},{businessid : contactLogUser._id}]}).then(x=>{
+							let finalData ={}
+							console.log("X===>",x);
+							  if(x == null || x == undefined)
+							  {
+								finalData = {
+									"_id": data._id,
+									"from": data.from,
+									"to": data.to,
+									"template_position": userdata.template_position || 0,
+									"fav_status": false,
+									"rating": data.rating,
+									"isActive": data.isActive,
+									"createdAt": data.createdAt,
+									"updatedAt": data.updatedAt,
+									 totalRating : 0,
+									 totalCount : userdata.length
+								}	
+							  }
+							  else
+							  {
+								finalData = {
+									"_id": data._id,
+									"from": data.from,
+									"to": data.to,
+									"template_position": userdata.template_position || 0,
+									"rating": data.rating,
+									"fav_status": x.fav_status,
+									"isActive": data.isActive,
+									"createdAt": data.createdAt,
+									"updatedAt": data.updatedAt,
+									 totalRating : 0,
+									 totalCount : userdata.length
+								}	
+							  }	
+							   for(let i=0;i<userdata.length;i++)
+							   {
+								finalData.totalRating += userdata[i].rating;
+							   }		
+									resolve({
+										code: 200,
+										result: finalData,
+									});
+							}).catch(err=>{
+								reject({
+									code: 400,
+									Error: `${err}`,
+								});
+							})
 						}
 					 })
 					 .catch((err) => {

@@ -38,6 +38,31 @@ class TemplateController {
 		});
 	}
 
+	getAllTemplate(req) {
+		return new Promise((resolve, reject) => {
+			Template.find({isActive:true})
+				.then((data) => {
+					if (data.length == 0) {
+						resolve({
+							code: 204,
+							msg: 'No template found!!!',
+						});
+					} else {
+						resolve({
+							code: 200,
+							result: data,
+						});
+					}
+				})
+				.catch((err) =>
+					reject({
+						code: 500,
+						msg: `${err}`,
+					})
+				);
+		});
+	}
+
 	getCards(req) {
 		console.log("get Cards Calling..")
 		return new Promise((resolve, reject) => {
@@ -186,19 +211,21 @@ class TemplateController {
 					msg: 'No data passed in request body!!!',
 				});
 			} else if (
-				!req.body.template ||
-				!req.body.color ||
-				!req.body.icon_color ||
-				!req.body.template_type
+				!req.body.template
 			) {
 				reject({
 					code: 400,
-					msg: 'Template, color or icon_color missing!!!',
+					msg: 'Template missing!!!',
 				});
 			} else {
 				let data = req.body;
+				let count  = await Template.countDocuments();
 
-				const template = new Template(data);
+				const template = new Template({
+					userid: req.user._id,
+					position : count+1,
+					template : data.template
+				});
 				template
 					.save()
 					.then((data) => {

@@ -42,8 +42,8 @@ app.use("/deals_images", express.static("public/deals"));
 app.use(express.static(path.join(__dirname, "public/businesslogos")));
 app.use("/businesslogo", express.static("public/businesslogos"));
 
-app.use(express.static(path.join(__dirname, "public/cards")));
-app.use("/template_images", express.static("public/cards"));
+app.use(express.static(path.join(__dirname, "public/templates")));
+app.use("/template_images", express.static("public/templates"));
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
@@ -91,7 +91,8 @@ app.use('/cart', require('./routers/cartRoute'));
 app.use('/chat', require('./routers/chatRoute'));
 app.use('/order', require('./routers/orderRoute'));
 app.use('/message', require('./routers/userChatRoute'));
-app.use('/tandc', require('./routers/tandcRoute'));
+app.use('/master', require('./routers/masterRoute'));
+app.use('/admin', require('./routers/adminRoute'));
 
 /**
  * @swagger

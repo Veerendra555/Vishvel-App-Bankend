@@ -7,7 +7,7 @@ let resHandler = require('../handlers/responseHandler');
 
 let Storage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		cb(null, 'public/cardtemplates');
+		cb(null, 'public/templates');
 	},
 	filename: (req, file, cb) => {
 		cb(null, Date.now() + '-' + file.originalname);
@@ -48,6 +48,25 @@ function getCards(req, res) {
 
 function getTemplate(req, res) {
 	TemplateController.getTemplate(req)
+		.then((data) => {
+			if (data.code == 204) {
+				res.status(200).json(
+					resHandler(data.code, data.result ? data.result : data.msg)
+				);
+			} else {
+				res.status(data.code).json(
+					resHandler(data.code, data.result ? data.result : data.msg)
+				);
+			}
+		})
+		.catch((error) => {
+			res.status(error.code).json(resHandler(error.code, error.msg));
+		});
+}
+
+
+function getAllTemplate(req, res) {
+	TemplateController.getAllTemplate(req)
 		.then((data) => {
 			if (data.code == 204) {
 				res.status(200).json(
@@ -108,6 +127,9 @@ function addTemplate(req, res) {
  */
 router.get('/', checkAuth, getTemplate);
 router.get('/getAllCards/:userid',  getCards);
+router.get('/getAllTemplate',  getAllTemplate);
+
+
 
 
 

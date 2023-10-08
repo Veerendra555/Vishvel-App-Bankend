@@ -1,9 +1,13 @@
 const mongoose = require("../db/db");
 var ObjectId = mongoose.Schema.Types.ObjectId;
 
-const tandcSchema = mongoose.Schema({
+const masterData = mongoose.Schema({
   userid: {
     type: ObjectId,
+    required: true,
+  },
+  type: {
+    type: String,
     required: true,
   },
   description: {
@@ -14,6 +18,6 @@ const tandcSchema = mongoose.Schema({
   timestamps:true
 });
 
-const tandc = mongoose.model("termsandconditions", tandcSchema);
+const masterDetails = mongoose.model("master", masterData);
 
-module.exports = tandc;
+module.exports = masterDetails;

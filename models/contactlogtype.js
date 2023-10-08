@@ -16,7 +16,7 @@ const contactLogTypeSchema = mongoose.Schema({
   },
     fav_status: {
       type : Boolean,
-      default : true
+      default : false
     },
   contactTime: {
     type : Date,

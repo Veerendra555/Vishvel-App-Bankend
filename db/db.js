@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 class Mongoose {
   constructor() {
     try {
@@ -12,6 +11,7 @@ class Mongoose {
       });
       console.log("DB Connection Successfully.. Checking...")
       return mongoose;
+
     } catch (err) {
       console.log("Mongo Error: \n", err);
     }
