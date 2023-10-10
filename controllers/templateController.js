@@ -40,7 +40,7 @@ class TemplateController {
 
 	getAllTemplate(req) {
 		return new Promise((resolve, reject) => {
-			Template.find({isActive:true})
+			Template.find({})
 				.then((data) => {
 					if (data.length == 0) {
 						resolve({
@@ -62,6 +62,33 @@ class TemplateController {
 				);
 		});
 	}
+
+
+	updateTemplateStatus(req) {
+		return new Promise((resolve, reject) => {
+			Template.updateOne({_id:req.body._id},{$set:{isActive: req.body.isActive}})
+				.then((data) => {
+					if (data.length == 0) {
+						resolve({
+							code: 204,
+							msg: 'No template found!!!',
+						});
+					} else {
+						resolve({
+							code: 200,
+							msg: "Template Stataus Updated successfully",
+						});
+					}
+				})
+				.catch((err) =>
+					reject({
+						code: 500,
+						msg: `${err}`,
+					})
+				);
+		});
+	}
+
 
 	getCards(req) {
 		console.log("get Cards Calling..")
@@ -232,6 +259,7 @@ class TemplateController {
 						resolve({
 							code: 200,
 							result: data,
+							msg:"Template added successfully"
 						});
 					})
 					.catch((err) => {

@@ -83,6 +83,27 @@ function getAllTemplate(req, res) {
 		});
 }
 
+
+
+
+
+function updateTemplateStatus(req, res) {
+	TemplateController.updateTemplateStatus(req)
+		.then((data) => {
+			if (data.code == 204) {
+				res.status(200).json(
+					resHandler(data.code, data.result ? data.result : data.msg)
+				);
+			} else {
+				res.status(data.code).json(
+					resHandler(data.code, data.result ? data.result : data.msg)
+				);
+			}
+		})
+		.catch((error) => {
+			res.status(error.code).json(resHandler(error.code, error.msg));
+		});
+}
 function addTemplate(req, res) {
 	if (!req.file || !req.file.path) {
 		res.status(400).json(resHandler(400, 'Image path missing!!!'));
@@ -161,5 +182,6 @@ router.get('/getAllTemplate',  getAllTemplate);
  *        description: Internal server error
  */
 router.post('/', checkAuth, upload.single('template'), addTemplate);
+router.put('/', checkAuth,  updateTemplateStatus);
 
 module.exports = router;

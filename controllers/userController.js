@@ -3,6 +3,7 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const users = require("../models/user");
 const UserDetails = require("../models/userdetail");
+const contactLog = require("../models/contactlogtype");
 const OTP = require("../models/otp");
 const superagent = require("superagent");
 const otp = require("../models/otp");
@@ -25,22 +26,57 @@ class UserController {
                     // let randNum = '000000';
                     // const textMsg = `Your verification code is ${randNum}.`;
                     let textMsg = `Dear Customer your OTP code is ${randNum}. Regards, VISHVL`;
-
+                    let createOtp = false;
                     const user = await users
-                        .findOne({
-                            mob_no: mob,
-                            isdeleted: false
+                        .findOne({mob_no: mob})
+                        .then((r) => {
+                             console.log("R===>",r);
+                            if(r != null && r != undefined) 
+                            {
+                             if(r.isdeleted)
+                             {
+                                resolve({
+                                    code: 400,
+                                    msg: `Your account is deleted Please Contact Admin!!!`,
+                                });
+                             }
+                             else
+                             {
+                                createOtp = true;
+                                return r;
+                             }
+                            }
+                             else
+                             {
+                                createOtp = true;
+                                return r;
+                             }
+                            //  if(r== null || r == undefined)
+                            //  {
+                            //     resolve({
+                            //         code: 400,
+                            //         msg: `User Not Found!!!`,
+                            //     });
+                            //  }
+                            //  else 
+                            //  else 
+                            //  {
+                            //   createOtp = true;
+                            //   return r;
+                            //  } 
                         })
-                        .then((r) => r)
-                        .catch((err) =>
+                        .catch((err) => {
+                            createOtp = true;
                             reject({
                                 code: 500,
                                 msg: `${err}`,
                             })
-                        );
+                         } );
 
                     // console.log('user', user);
-                    if (!user) {
+                    if(createOtp)
+                    {
+                    if (!user ) {
                         const user = new users({
                             mob_no: mob,
                             exists: false,
@@ -150,6 +186,7 @@ class UserController {
                             reject(`${result.message}`);
                         }
                     }
+                   } 
                 } catch (err) {
                     reject(err);
                 }
@@ -562,7 +599,7 @@ class UserController {
             }
         });
     }
-
+    
     getUser(req) {
         return new Promise((resolve, reject) => {
             let query = {};

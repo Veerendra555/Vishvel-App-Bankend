@@ -3,7 +3,9 @@ class Mongoose {
   constructor() {
     try {
      //"mongodb+srv://vishvel:QzrZgPpCBKEIBoJU@cluster0.uq44rzt.mongodb.net/vishvel"
-      mongoose.connect("mongodb+srv://24ed1ae9ed:QXlNEkMyJoW2qhOc@cluster0.bzfz6tv.mongodb.net/vishvel", {
+      mongoose.connect("mongodb+srv://c9c05b70d6:pe5jYenWUiEtorVJ@cluster0.gpcrfyk.mongodb.net/vishvel"
+        // "mongodb+srv://24ed1ae9ed:QXlNEkMyJoW2qhOc@cluster0.bzfz6tv.mongodb.net/vishvel"
+      , {
         useNewUrlParser: true,
         // useCreateIndex: true,
         useUnifiedTopology: true,

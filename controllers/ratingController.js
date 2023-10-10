@@ -97,8 +97,8 @@ class RatingController {
 							});
 						} else {
 							let contactLogUser = await userDetails.findOne({userid : req.query.to});
-							console.log("req.user._id",req.user._id,"req.query.to",req.query.to , contactLogUser)
-						ContactLogType.findOne({$and:[{from: req.user._id},{businessid : contactLogUser._id}]}).then(x=>{
+							console.log("req.user._id",req.user._id,"req.query.to",contactLogUser._id , contactLogUser)
+						ContactLogType.findOne({$and:[{userid: req.user._id},{businessid : contactLogUser._id}]}).then(x=>{
 							let finalData ={}
 							console.log("X===>",x);
 							  if(x == null || x == undefined)

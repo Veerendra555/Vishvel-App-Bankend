@@ -6,7 +6,13 @@ let resHandler = require('../handlers/responseHandler');
 function otpGenerate(req, res) {
     UserController.otpGenerate(req)
         .then(data => {
+            console.log("data In OTP",data);
+            if(data.code == 400)
+            res.status(400).json(resHandler(400, data));
+            else
             res.status(200).json(resHandler(200, data));
+
+
         })
         .catch(error => {
             res.status(500).json(resHandler(500, error));
