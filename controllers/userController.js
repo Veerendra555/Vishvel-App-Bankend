@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const users = require("../models/user");
 const UserDetails = require("../models/userdetail");
 const contactLog = require("../models/contactlogtype");
+const ratingModel = require('../models/rating');
+const ContactLogType = require('../models/contactlogtype');
 const OTP = require("../models/otp");
 const superagent = require("superagent");
 const otp = require("../models/otp");
@@ -673,6 +675,76 @@ class UserController {
         });
     }
 
+    getUserNew(req) {
+        return new Promise((resolve, reject) => {
+            let finalData ={};
+            UserDetails.findOne({userid : req.query.userid})
+                .then((data) => {
+                    if (data.length == 0) {
+                        resolve({
+                            code: 204,
+                            msg: "No user found!!!",
+                        });
+                    } else {
+                        console.log("From User==>",data)
+                        finalData = {...data.toObject()};          
+                        ratingModel.find({to : req.query.userid})
+                        .then(async(userdata) => {
+                            console.log("userdata==>",userdata)
+                            if(userdata == null || userdata == undefined)
+                            finalData = {...finalData, total_rating : 0 ,total_count : 0};
+                            else
+                            {
+                                finalData = {...finalData, total_rating : 0 ,total_count :userdata.length };   
+                            }
+                            for(let i=0;i<userdata.length;i++)
+                            {
+                             finalData.total_rating += userdata[i].rating;
+                            }
+
+                            await ContactLogType.find({businessid : data._id}).then(async uniqueData=>{
+                                console.log(uniqueData,"uniqueData===>");
+                                finalData = {...finalData, followers_count : 0};
+                                let uniqueSet = [... new Map(uniqueData.map(item => [item.userid.toString() , item])).values()];
+                                console.log(uniqueSet)
+                                for(let i=0;i<uniqueSet.length;i++)
+                                {
+                                    if(uniqueSet[i].fav_status)
+                                     finalData = {...finalData, followers_count : finalData.followers_count+1 }
+                                //   await	ContactLogType.findOne({userid : uniqueData[i]}).then(details=>{
+                                //         console.log(details,"details--->")
+                                //            if(details !=null &&details != undefined )
+                                //             {
+                                //               if(details.fav_status)
+                                //               finalData = {...finalData, followers_count : finalData.followers_count+1 }
+                                //             }
+                                //     }).catch(err=>{
+                                //          console.log(err)
+                                //     })
+                                }
+                                    resolve({
+                                        code: 200,
+                                        result: finalData,
+                                    });
+                        })
+                        .catch((err) =>
+                            reject({
+                                code: 500,
+                                msg: `${err}`,
+                            })
+                        );
+                    })
+                  }
+                })
+                .catch((err) =>
+                    reject({
+                        code: 500,
+                        msg: `${err}`,
+                    })
+                );
+        });
+    }
+
     getUserTemplate(req){
         return new Promise((resolve, reject) => {
 	  UserDetails.findOne({userid:req.user._id})
@@ -717,7 +789,7 @@ class UserController {
                 });
             } else if (!req.body.userid ||
                 !req.body.name ||
-                !req.body.email ||
+                // !req.body.email ||
                 !req.body.occupation ||
                 !req.body.company ||
                 !req.body.about_company || 
@@ -801,7 +873,7 @@ class UserController {
                 });
             } else if (!req.body.userid ||
                 !req.body.name ||
-                !req.body.email ||
+                // !req.body.email ||
                 !req.body.occupation ||
                 !req.body.company ||
                 !req.body.about_company || 
@@ -1246,6 +1318,63 @@ class UserController {
                             msg: `${err}`,
                         });
                     });
+            }
+        });
+    }
+
+    statusUpdate(req) {
+        // console.log('req.body', req.body);
+        return new Promise(async(resolve, reject) => {
+            if (!Object.keys(req.body).length) {
+                reject({
+                    code: 400,
+                    msg: "No data passed in request body!!!",
+                });
+            } else if (!req.body.userid) {
+                reject({
+                    code: 400,
+                    msg: "userid is missing!!!",
+                });
+            } else {
+                let data = req.body;
+                const regUser = await users.findById(data.userid);
+                // console.log('regUser', regUser);
+
+                if (!regUser) {
+                    throw new Error("User not found!!!");
+                }
+            await  UserDetails.updateOne({
+                    userid: ObjectId(data.userid)
+                }, {
+                    $set: {
+                        isdeleted: req.body.isdeleted,
+                    },
+                })
+                .then(async() => {
+                await  users.updateOne({
+                        _id: ObjectId(data.userid)
+                    }, {
+                        $set: {
+                            isdeleted: req.body.isdeleted,
+                        },
+                    }).then(() => {
+                        resolve({
+                            code: 200,
+                            msg: `Account ${ req.body.isdeleted ? 'Deleted' : 'Activated'}  Successfully!!!`,
+                        });
+                    }).catch((err) => {
+                        reject({
+                            code: 500,
+                            msg: `${err}`,
+                        });
+                    });
+                })
+                .catch((err) => {
+                    reject({
+                        code: 500,
+                        msg: `${err}`,
+                    });
+                });
             }
         });
     }

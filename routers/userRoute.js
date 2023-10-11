@@ -31,7 +31,7 @@ let upload = multer({
 });
 
 function getUser(req, res) {
-  UserController.getUser(req)
+  UserController.getUserNew(req)
     .then((data) => {
       if (data.code == 204) {
         res
@@ -188,6 +188,25 @@ function updateUser(req, res) {
 
 }
 
+
+
+function statusUpdate(req, res) {
+    UserController.statusUpdate(req)
+    .then((data) => {
+      if (data.code == 204) {
+        res
+          .status(200)
+          .json(resHandler(data.code, data.result ? data.result : data.msg));
+      } else {
+        res
+          .status(data.code)
+          .json(resHandler(data.code, data.result ? data.result : data.msg));
+      }
+    })
+    .catch((error) => {
+      res.status(error.code).json(resHandler(error.code, error.msg));
+    });
+}
 
 
 
@@ -367,6 +386,7 @@ router.get("/userTemplate", checkAuth, getUserTemplate);
 */
 router.post("/", addUser);
 router.put("/", updateUser);
+router.put("/statusUpdate",statusUpdate);
 
 /**
  * @swagger

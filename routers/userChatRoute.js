@@ -26,6 +26,7 @@ router.post("/addMessage", ChatController.addMessage);
 router.post("/getMessage", ChatController.getMessages);
 router.get("/getAllMemberMessages/:userid", ChatController.getAllMembersMessages);
 
+
 module.exports = router;
 
 // function addChat(req, res) {

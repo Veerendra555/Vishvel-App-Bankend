@@ -46,7 +46,7 @@ function editRating(req, res) {
 }
 
 function getRating(req, res) {
-    ratingController.getRating(req)
+    ratingController.getRatingNew(req)
     .then((data) => {
       if (data.code == 204) {
         res
